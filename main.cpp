@@ -8,11 +8,11 @@
 // #include <Usagi/Experimental/v2/Game/System.hpp>
 // #include <Usagi/Experimental/v2/Executive/>
 #include <Usagi/Core/Clock.hpp>
-#include <Usagi/Experimental/v2/Game/_details/ComponentFilter.hpp>
+#include <Usagi/Experimental/v2/Game/_detail/ComponentFilter.hpp>
 #include <Usagi/Core/Logging.hpp>
-#include <Usagi/Experimental/v2/Game/_details/EntityDatabaseExternalAccess.hpp>
+#include <Usagi/Experimental/v2/Game/_detail/EntityDatabaseAccessExternal.hpp>
 #include <Usagi/Utility/PrintTimer.hpp>
-#include <Usagi/Experimental/v2/Game/_details/ComponentAccessSystemAttribute.hpp>
+#include <Usagi/Experimental/v2/Game/_detail/ComponentAccessSystemAttribute.hpp>
 
 using namespace usagi;
 
@@ -71,6 +71,7 @@ using ArchetypeSpark = Archetype<
     ComponentSprite
 >;
 
+// todo infer components from systems
 using Database = EntityDatabase<
     16,
     ComponentFireworks,
@@ -80,27 +81,63 @@ using Database = EntityDatabase<
     ComponentSprite
 >;
 
-/*
 struct SystemFireworksSpawn
 {
-    using WriteAccess = ArchetypeFireworks::component_filter;
+    using WriteAccess = ArchetypeFireworks::ComponentFilterT;
 
     std::mt19937 gen { std::random_device()() };
     std::uniform_real_distribution<float> dis { 1.f, 2.f };
     Clock timer;
     float wait_time_sec = dis(gen);
 
+    ArchetypeFireworks fireworks;
+    ArchetypeFireworks fireworks2;
+
     template <typename RuntimeServiceProvider, typename EntityDatabaseAccess>
     void update(RuntimeServiceProvider &&svc, EntityDatabaseAccess &&db)
     {
-        if(timer.elapsed() > wait_time_sec)
+        // if(timer.elapsed() > wait_time_sec)
+        for(auto i = 0; i < 17; ++i)
         {
-            auto e = db.create(ArchetypeFireworks());
+            fireworks.val<ComponentFireworks>().num_sparks = 10;
+            fireworks.val<ComponentFireworks>().time_to_explode = 2;
+            fireworks.val<ComponentPosition>().position = { 1280 / 2, 0 };
+            fireworks.val<ComponentPhysics>().velocity = { 0, 0 };
+            fireworks.val<ComponentPhysics>().acceleration = { 0, 0 };
+            fireworks.val<ComponentSprite>().size = 5;
+            EntityId e;
+            EntityId es[3];
+            for(auto j = 0; j < 17; ++j)
+            {
+                e = db.create(fireworks, 3, es);
+                for(auto &ei : es)
+                {
+                    fmt::print("{} {}\n", ei.id, ei.page_id);
+                }
+            }
+            for(auto j = 0; j < 3; ++j)
+            {
+                e = db.create(fireworks2, 17);
+                fmt::print("{} {}\n", e.id, e.page_id);
+            }
+            //
+            //
+            // e = db.create(fireworks);
+            //
+            // auto &c_f = USAGI_COMPONENT(e, ComponentFireworks);
+            // c_f.num_sparks = 10;
+            // c_f.time_to_explode = 2;
+            //
+            // auto &c_pos = USAGI_COMPONENT(e, ComponentPosition);
+            // c_pos.position = { 1280 / 2, 0 };
+            //
+            // auto &c_phy = USAGI_COMPONENT(e, ComponentPhysics);
+            // c_phy.velocity = { 0, 0, 0 };
+            // c_phy.acceleration = { 0, 0, 0 };
+            //
+            // auto &c_s = USAGI_COMPONENT(e, ComponentSprite);
+            // c_s.size = 5;
 
-            e<ComponentFireworks>() = ...;
-            e<ComponentPosition>() = ...;
-            e<ComponentPhysics>() = ...;
-            e<ComponentSprite>() = ...;
 
             timer.reset();
             wait_time_sec = dis(gen);
@@ -108,6 +145,25 @@ struct SystemFireworksSpawn
     }
 };
 
+void t()
+{
+    SystemFireworksSpawn s;
+    Database db;
+    int rt = 0;
+    s.update(rt, EntityDatabaseAccessExternal<
+        Database,
+        ComponentAccessSystemAttribute<SystemFireworksSpawn>
+    >(&db));
+}
+
+int usagi_main(const std::vector<std::string> &args)
+{
+    t();
+
+    return 0;
+}
+
+/*
 struct SystemFireworksExplode
 {
     using WriteAccess = ComponentFilter<
@@ -123,15 +179,17 @@ struct SystemFireworksExplode
     {
         auto fireworks_view = db.view<decltype(gFireworks)::component_mask_t>;
 
-        for(auto &&f : fireworks_view)
+        for(auto &&v : db.view(ComponentFilter<ComponentFireworks>()))
         {
-            auto &fc = f<ComponentFireworks>();
-            fc.time_to_explode -= svc.masterClock.elapsed();
-            if(fc.time_to_explode < 0.f)
+            auto &f_c = USAGI_COMPONENT(v, ComponentFireworks);
+
+            f_c.time_to_explode -= rt.masterClock.elapsed();
+
+            if(f_c.time_to_explode < 0.f)
             {
-                for(auto i = 0; i < fc.num_sparks; ++i)
+                for(auto i = 0; i < f_c.num_sparks; ++i)
                 {
-                    auto e = gSpark.create(db);
+                    auto e = db.create();
                     e<ComponentSpark>() = ...;
                     e<ComponentPosition>() = f<ComponentPosition>();
                     e<ComponentPhysics>() = ...;
@@ -205,7 +263,6 @@ struct SystemSpriteRendering
         }
     }
 };
-*/
 
 struct SystemIterateAllEntities
 {
@@ -238,80 +295,6 @@ struct SystemIterateAllEntities
         return std::pair(i, sum);
     }
 };
-template <typename C>
-struct ComponentTypeTag
-{
-};
-
-template <typename C>
-struct EntityViewWrapper
-{
-    C &c;
-
-    EntityViewWrapper(C &c)
-        : c(c)
-    {
-    }
-};
-
-template <typename C, typename EntityView>
-C & ccc(ComponentTypeTag<C>, EntityViewWrapper<EntityView>)
-{
-    return std::declval<C &>();
-}
-template <typename C, typename EntityView=void>
-C & ccxc(ComponentTypeTag<C>,EntityView &&)
-{
-    return std::declval<C &>();
-}
-
-template <typename C, typename EntityView>
-struct access
-{
-    using type = C;
-};
-
-
-template <typename C, typename EntityView>
-struct access2
-{
-    using type = C;
-
-    EntityView &x;
-
-    access2(C, EntityView &x)
-        : x(x)
-    {
-    }
-};
-
-template <typename C, typename EntityView>
-using CT = typename access<C, EntityView>::type;
-
-template <typename C, typename EntityView>
-CT<C, EntityView> d (ComponentTypeTag<C>, EntityView &&)
-{
-    return std::declval<C &>();
-}
-
-auto l = [](auto &&c) -> decltype(c){
-    return std::declval<decltype(c)>();
-};
-
-auto l1 = [](auto &&c) {
-    return [&c](auto &&v) -> decltype(c) {
-        return std::declval<decltype(c)>();
-    };
-};
-
-
-auto l2 = [](auto &&c) {
-    return [](auto &&v) -> decltype(v) {
-        return std::declval<decltype(v)>();
-    };
-};
-
-
 
 struct SystemIterateFilteredEntities
 {
@@ -324,35 +307,6 @@ struct SystemIterateFilteredEntities
         std::size_t i = 0;
         double sum = 0;
 
-        // for(auto &&e : db.view(ReadAccess()))
-        // {
-        //     // std::declval<A<std::remove_reference_t<decltype(*this)>,ComponentFireworks>>().
-        //     // l1(ComponentFireworks());
-        //     // l2(e)(ComponentFireworks()).
-        //     // // l(ComponentFireworks()).
-        //     // access2 xxxx(ComponentFireworks(), e);
-        //     // typename decltype(xxxx)::type xxxxx;
-        //     // xxxxx.
-        //     //
-        //     // typename access<ComponentFireworks, decltype(e)>::type xx;
-        //     // e(ComponentFireworks());
-        //     // CT<ComponentFireworks, decltype(e)> x;
-        //     // ::d(ComponentTypeTag<ComponentFireworks>(),e).
-        //     USAGI_COMPONENT(e, ComponentPosition).position.x() = 1;
-        //     USAGI_COMPONENT(e, ComponentFireworks).num_sparks = 1;
-        //     // USAGI_COMPONENT(e, ComponentFireworks).num_sparks = 1;
-        //     // USAGI_COMPONENT(e, ComponentFireworks).num_sparks = 1;
-        //     // ccc(ComponentTypeTag<ComponentFireworks>(),
-        //     // ccxc(ComponentTypeTag<ComponentFireworks>(),e).
-        //     // usagi::component(ComponentTypeTag<ComponentFireworks>(), e).num_sparks = 1;
-        //     // usagi::component(ComponentTypeTag<ComponentPosition>(), e).position.x() = 1;
-        //     // x(ComponentTypeTag<ComponentFireworks>(), e).num_sparks = 1;
-        //     // x(ComponentTypeTag<ComponentPosition>(), e).position.x() = 1;
-        //
-        //     component<ComponentFireworks>(e).time_to_explode = (float)++i;
-        //     sum += *std::launder<float>(&component<ComponentFireworks>(e).time_to_explode);
-        // }
-
         auto view = db.view(ReadAccess());
         auto iter = view.begin();
         const auto end = view.end();
@@ -364,11 +318,8 @@ struct SystemIterateFilteredEntities
             // e(ComponentTypeTag<ComponentFireworks>()).
             for(auto j = 0; j < 10; ++j)
             {
-                component<ComponentFireworks>(e).time_to_explode = (float)++i;
+                USAGI_COMPONENT(e, ComponentFireworks).time_to_explode = (float)++i;
                 sum += *std::launder<float>(&component<ComponentFireworks>(e).time_to_explode);
-                // e.addComponent<ComponentPhysics>();
-                // component<ComponentPhysics>(e);
-
             }
             ++iter;
         }
@@ -539,3 +490,4 @@ int usagi_main(const std::vector<std::string> &args)
 
     return 0;
 }
+*/
