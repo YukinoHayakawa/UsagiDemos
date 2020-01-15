@@ -1,6 +1,5 @@
 ﻿#define NDEBUG
 
-
 #include <Usagi/Utility/Utf8Main.hpp>
 #include <Usagi/Math/Matrix.hpp>
 #include <Usagi/Experimental/v2/Game/Entity/Archetype.hpp>
@@ -11,8 +10,8 @@
 #include <Usagi/Experimental/v2/Game/_detail/ComponentFilter.hpp>
 #include <Usagi/Core/Logging.hpp>
 #include <Usagi/Experimental/v2/Game/_detail/EntityDatabaseAccessExternal.hpp>
-#include <Usagi/Utility/PrintTimer.hpp>
 #include <Usagi/Experimental/v2/Game/_detail/ComponentAccessSystemAttribute.hpp>
+#include <Usagi/Math/Constant.hpp>
 
 using namespace usagi;
 
@@ -53,7 +52,7 @@ static_assert(Component<ComponentPhysics>);
 
 struct ComponentSprite
 {
-    float size;
+    int size;
 };
 static_assert(Component<ComponentSprite>);
 
@@ -81,6 +80,9 @@ using Database = EntityDatabase<
     ComponentSprite
 >;
 
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+
 struct SystemFireworksSpawn
 {
     using WriteAccess = ArchetypeFireworks::ComponentFilterT;
@@ -91,53 +93,21 @@ struct SystemFireworksSpawn
     float wait_time_sec = dis(gen);
 
     ArchetypeFireworks fireworks;
-    ArchetypeFireworks fireworks2;
 
     template <typename RuntimeServiceProvider, typename EntityDatabaseAccess>
     void update(RuntimeServiceProvider &&svc, EntityDatabaseAccess &&db)
     {
-        // if(timer.elapsed() > wait_time_sec)
-        for(auto i = 0; i < 17; ++i)
+        if(timer.now() > wait_time_sec)
+        // for(auto i = 0; i < 17; ++i)
         {
             fireworks.val<ComponentFireworks>().num_sparks = 10;
             fireworks.val<ComponentFireworks>().time_to_explode = 2;
-            fireworks.val<ComponentPosition>().position = { 1280 / 2, 0 };
-            fireworks.val<ComponentPhysics>().velocity = { 0, 0 };
+            fireworks.val<ComponentPosition>().position = { 1920 / 2, 0 };
+            fireworks.val<ComponentPhysics>().velocity = { 0, 300 };
             fireworks.val<ComponentPhysics>().acceleration = { 0, 0 };
-            fireworks.val<ComponentSprite>().size = 5;
-            EntityId e;
-            EntityId es[3];
-            for(auto j = 0; j < 17; ++j)
-            {
-                e = db.create(fireworks, 3, es);
-                for(auto &ei : es)
-                {
-                    fmt::print("{} {}\n", ei.id, ei.page_id);
-                }
-            }
-            for(auto j = 0; j < 3; ++j)
-            {
-                e = db.create(fireworks2, 17);
-                fmt::print("{} {}\n", e.id, e.page_id);
-            }
-            //
-            //
-            // e = db.create(fireworks);
-            //
-            // auto &c_f = USAGI_COMPONENT(e, ComponentFireworks);
-            // c_f.num_sparks = 10;
-            // c_f.time_to_explode = 2;
-            //
-            // auto &c_pos = USAGI_COMPONENT(e, ComponentPosition);
-            // c_pos.position = { 1280 / 2, 0 };
-            //
-            // auto &c_phy = USAGI_COMPONENT(e, ComponentPhysics);
-            // c_phy.velocity = { 0, 0, 0 };
-            // c_phy.acceleration = { 0, 0, 0 };
-            //
-            // auto &c_s = USAGI_COMPONENT(e, ComponentSprite);
-            // c_s.size = 5;
+            fireworks.val<ComponentSprite>().size = 15;
 
+            const EntityId e = db.create(fireworks);
 
             timer.reset();
             wait_time_sec = dis(gen);
@@ -145,25 +115,36 @@ struct SystemFireworksSpawn
     }
 };
 
-void t()
+struct SystemPhysics
 {
-    SystemFireworksSpawn s;
-    Database db;
-    int rt = 0;
-    s.update(rt, EntityDatabaseAccessExternal<
-        Database,
-        ComponentAccessSystemAttribute<SystemFireworksSpawn>
-    >(&db));
+    using WriteAccess = ComponentFilter<ComponentPosition, ComponentPhysics>;
+
+    Vector2f global_gravity { 0, -50 };
+
+    template <typename RuntimeServiceProvider, typename EntityDatabaseAccess>
+    void update(RuntimeServiceProvider &&rt, EntityDatabaseAccess &&db)
+    {
+        // auto dt = rt.masterClock.elapsed();
+        float dt = 1.f / 16;
+        for(auto &&e : db.view(WriteAccess()))
+        {
+            auto &c_physics = USAGI_COMPONENT(e, ComponentPhysics);
+            auto &c_pos = USAGI_COMPONENT(e, ComponentPosition);
+            c_pos.position += c_physics.velocity * dt;
+            c_physics.velocity +=
+                (c_physics.acceleration + global_gravity) * dt;
+        }
+    }
+};
+
+Vector2f polarToCartesian(float magnitude, float angle_rad)
+{
+    return {
+        magnitude * cos(angle_rad),
+        magnitude * sin(angle_rad)
+    };
 }
 
-int usagi_main(const std::vector<std::string> &args)
-{
-    t();
-
-    return 0;
-}
-
-/*
 struct SystemFireworksExplode
 {
     using WriteAccess = ComponentFilter<
@@ -174,32 +155,133 @@ struct SystemFireworksExplode
         ComponentSprite
     >;
 
+    ArchetypeSpark spark;
+
+    std::mt19937 gen { std::random_device()() };
+    std::uniform_real_distribution<float> dis { 0, 2 * M_PI<float> };
+
     template <typename RuntimeServiceProvider, typename EntityDatabaseAccess>
     void update(RuntimeServiceProvider &&rt, EntityDatabaseAccess &&db)
     {
-        auto fireworks_view = db.view<decltype(gFireworks)::component_mask_t>;
-
-        for(auto &&v : db.view(ComponentFilter<ComponentFireworks>()))
+        for(auto &&e : db.view(ComponentFilter<
+            ComponentFireworks,
+            ComponentPosition
+        >()))
         {
-            auto &f_c = USAGI_COMPONENT(v, ComponentFireworks);
+            auto &f_c = USAGI_COMPONENT(e, ComponentFireworks);
 
-            f_c.time_to_explode -= rt.masterClock.elapsed();
-
+            f_c.time_to_explode -= 1.f / 60;
             if(f_c.time_to_explode < 0.f)
             {
                 for(auto i = 0; i < f_c.num_sparks; ++i)
                 {
-                    auto e = db.create();
-                    e<ComponentSpark>() = ...;
-                    e<ComponentPosition>() = f<ComponentPosition>();
-                    e<ComponentPhysics>() = ...;
-                    e<ComponentSprite>() = ...;
+                    spark.val<ComponentSpark>();
+                    // copy the rocket position
+                    spark.val<ComponentPosition>() =
+                        USAGI_COMPONENT(e, ComponentPosition);
+                    spark.val<ComponentPhysics>().velocity =
+                        polarToCartesian(150, dis(gen));
+                    spark.val<ComponentSprite>().size = 5;
+                    db.create(spark); // <- bug create entities during iteration will invalidate the iterators
                 }
-                f.destroy();
+                e.destroy();
             }
         }
     }
 };
+
+struct SystemSpriteRendering
+{
+    using ReadAccess = ComponentFilter<ComponentPosition, ComponentSprite>;
+
+    // EntityDB is a concept that covers all instantiations of the
+    // database template
+    // EntityDatabaseAccess adds layer of permission checking. if the system
+    // does not have access to some components, the access is denied.
+    template <typename RuntimeServiceProvider, typename EntityDatabaseAccess>
+    void update(RuntimeServiceProvider &&rt, EntityDatabaseAccess &&db)
+    {
+        // https://stackoverflow.com/questions/1937163/drawing-in-a-win32-console-on-c
+
+        // Get window handle to console, and device context
+        HWND console_handle = GetConsoleWindow();
+        HDC hdc = GetDC(console_handle);
+
+        SelectObject(hdc, GetStockObject(WHITE_PEN));
+        MoveToEx(hdc, 0, 1080, nullptr);
+        LineTo(hdc, 1920, 1080);
+        LineTo(hdc, 1920, 0);
+
+        // SelectObject(hdc, GetStockObject(BLACK_PEN));
+        // SetDCBrushColor(hdc, RGB(0, 0, 0));
+        SelectObject(hdc, GetStockObject(BLACK_BRUSH));
+        Rectangle(hdc, 0, 0, 1920, 1080);
+
+        for(auto &&e : db.view(ReadAccess()))
+        {
+            auto &pos = USAGI_COMPONENT(e, ComponentPosition);
+            auto &sprite = USAGI_COMPONENT(e, ComponentSprite);
+
+            Rectangle(hdc,
+                (int)pos.position.x(),
+                1080 - (int)pos.position.y(),
+                (int)pos.position.x()+ sprite.size,
+                1080 - ((int)pos.position.y() + sprite.size)
+            );
+        }
+
+        ReleaseDC(console_handle, hdc);
+    }
+};
+
+#include <thread>
+#include <chrono>
+
+int usagi_main(const std::vector<std::string> &args)
+{
+    Database db;
+    int rt = 0;
+
+    SystemFireworksSpawn sys_spawn;
+    SystemFireworksExplode sys_explode;
+    SystemPhysics sys_physics;
+    SystemSpriteRendering sys_render;
+
+    // // Build the execution graph
+    // auto task = exec
+    //     .run<FireworksSpawnSystem>()
+    //     .then<FireworksExplodeSystem>()
+    //     .then<SparkFadingSystem, PhysicsSystem>()
+    //     .then<SpriteRenderingSystem>();
+
+    using namespace std::chrono_literals;
+
+    while(true)
+    {
+        sys_spawn.update(rt, EntityDatabaseAccessExternal<
+            Database,
+            ComponentAccessSystemAttribute<SystemFireworksSpawn>
+        >(&db));
+        sys_explode.update(rt, EntityDatabaseAccessExternal<
+            Database,
+            ComponentAccessSystemAttribute<SystemFireworksExplode>
+        >(&db));
+        sys_physics.update(rt, EntityDatabaseAccessExternal<
+            Database,
+            ComponentAccessSystemAttribute<SystemPhysics>
+        >(&db));
+        sys_render.update(rt, EntityDatabaseAccessExternal<
+            Database,
+            ComponentAccessSystemAttribute<SystemSpriteRendering>
+        >(&db));
+        std::this_thread::sleep_for(16ms);
+    }
+
+    return 0;
+}
+
+/*
+
 
 struct SystemSparkFading
 {
@@ -216,50 +298,6 @@ struct SystemSparkFading
                 svc.masterClock.elapsed();
             if(s<ComponentSpark>().brightness < 0.f)
                 s.destroy();
-        }
-    }
-};
-
-struct SystemPhysics
-{
-    using WriteAccess = ComponentFilter<ComponentPosition, ComponentPhysics>;
-
-    template <typename RuntimeServiceProvider, typename EntityDatabaseAccess>
-    void update(RuntimeServiceProvider &&rt, EntityDatabaseAccess &&db)
-    {
-        auto view = db.view<write_access>;
-        auto dt = rt.masterClock.elapsed();
-        for(auto &&p : view)
-        {
-            auto &pc = p<ComponentPhysics>();
-            p<ComponentPosition>().position += pc.velocity * dt;
-            pc.velocity += pc.acceleration * dt;
-        }
-    }
-};
-
-struct SystemSpriteRendering
-{
-    using ReadAccess = ComponentFilter<ComponentPosition, ComponentSprite>;
-
-    // EntityDB is a concept that covers all instantiations of the
-    // database template
-    // EntityDatabaseAccess adds layer of permission checking. if the system
-    // does not have access to some components, the access is denied.
-    template <typename RuntimeServiceProvider, typename EntityDatabaseAccess>
-    void update(RuntimeServiceProvider &&rt, EntityDatabaseAccess &&db)
-    {
-        auto fb = rt.resourse<RawFramebuffer>(
-            "res://io/window/0/framebuffer"
-        );
-
-        auto sprites = db.view<read_access>;
-        for(auto &&s : sprites)
-        {
-            fb.drawPoint(
-                s<ComponentPosition>().position,
-                s<ComponentSprite>().size
-            );
         }
     }
 };
