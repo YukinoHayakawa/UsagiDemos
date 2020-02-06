@@ -73,11 +73,13 @@ using ArchetypeSpark = Archetype<
 // todo infer components from systems
 using Database = EntityDatabase<
     16,
-    ComponentFireworks,
-    ComponentSpark,
-    ComponentPosition,
-    ComponentPhysics,
-    ComponentSprite
+    ComponentFilter<
+        ComponentFireworks,
+        ComponentSpark,
+        ComponentPosition,
+        ComponentPhysics,
+        ComponentSprite
+    >
 >;
 
 #define WIN32_LEAN_AND_MEAN
@@ -88,7 +90,9 @@ struct SystemFireworksSpawn
     using WriteAccess = ArchetypeFireworks::ComponentFilterT;
 
     std::mt19937 gen { std::random_device()() };
-    std::uniform_real_distribution<float> dis { 1.f, 2.f };
+    std::uniform_real_distribution<float> dis { .5f, 1.5f };
+    std::uniform_real_distribution<float> dis_x { 100, 1820 };
+    std::uniform_real_distribution<float> dis_v { 250, 300 };
     Clock timer;
     float wait_time_sec = dis(gen);
 
@@ -100,10 +104,10 @@ struct SystemFireworksSpawn
         if(timer.now() > wait_time_sec)
         // for(auto i = 0; i < 17; ++i)
         {
-            fireworks.val<ComponentFireworks>().num_sparks = 10;
+            fireworks.val<ComponentFireworks>().num_sparks = 100;
             fireworks.val<ComponentFireworks>().time_to_explode = 2;
-            fireworks.val<ComponentPosition>().position = { 1920 / 2, 0 };
-            fireworks.val<ComponentPhysics>().velocity = { 0, 300 };
+            fireworks.val<ComponentPosition>().position = { dis_x(gen), 0 };
+            fireworks.val<ComponentPhysics>().velocity = { 0, dis_v(gen) };
             fireworks.val<ComponentPhysics>().acceleration = { 0, 0 };
             fireworks.val<ComponentSprite>().size = 15;
 
@@ -133,6 +137,23 @@ struct SystemPhysics
             c_pos.position += c_physics.velocity * dt;
             c_physics.velocity +=
                 (c_physics.acceleration + global_gravity) * dt;
+        }
+    }
+};
+
+struct SystemRemovePhysics
+{
+    using ReadAccess = ComponentFilter<ComponentPosition>;
+    using WriteAccess = ComponentFilter<ComponentPhysics>;
+
+    template <typename RuntimeServiceProvider, typename EntityDatabaseAccess>
+    void update(RuntimeServiceProvider &&rt, EntityDatabaseAccess &&db)
+    {
+        for(auto &&e : db.view(WriteAccess()))
+        {
+            auto &c_pos = USAGI_COMPONENT(e, ComponentPosition);
+            if(c_pos.position.y() < 0)
+                e.template removeComponent<ComponentPhysics>();
         }
     }
 };
@@ -169,9 +190,10 @@ struct SystemFireworksExplode
         >()))
         {
             auto &f_c = USAGI_COMPONENT(e, ComponentFireworks);
+            auto &f_phy = USAGI_COMPONENT(e, ComponentPhysics);
 
-            f_c.time_to_explode -= 1.f / 60;
-            if(f_c.time_to_explode < 0.f)
+            // f_c.time_to_explode -= 1.f / 60;
+            if(f_phy.velocity.y() < 1)
             {
                 for(auto i = 0; i < f_c.num_sparks; ++i)
                 {
@@ -240,11 +262,13 @@ struct SystemSpriteRendering
 int usagi_main(const std::vector<std::string> &args)
 {
     Database db;
+
     int rt = 0;
 
     SystemFireworksSpawn sys_spawn;
     SystemFireworksExplode sys_explode;
     SystemPhysics sys_physics;
+    SystemRemovePhysics sys_remove_physics;
     SystemSpriteRendering sys_render;
 
     // // Build the execution graph
@@ -269,6 +293,10 @@ int usagi_main(const std::vector<std::string> &args)
         sys_physics.update(rt, EntityDatabaseAccessExternal<
             Database,
             ComponentAccessSystemAttribute<SystemPhysics>
+        >(&db));
+        sys_remove_physics.update(rt, EntityDatabaseAccessExternal<
+            Database,
+            ComponentAccessSystemAttribute<SystemRemovePhysics>
         >(&db));
         sys_render.update(rt, EntityDatabaseAccessExternal<
             Database,

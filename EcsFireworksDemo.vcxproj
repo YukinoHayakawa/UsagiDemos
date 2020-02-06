@@ -44,6 +44,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalOptions>/Qvec-report:2 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -94,6 +95,9 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Extensions\Usagi\Extensions\RtWin32\RtWin32.vcxproj">
+      <Project>{fbe0a064-8702-44a3-a308-167f78281dc7}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\Usagi\Usagi\Usagi.vcxproj">
       <Project>{4250e1c0-ea0b-4575-bc04-11e7f83c2ed4}</Project>
     </ProjectReference>
