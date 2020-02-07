@@ -35,13 +35,31 @@
     <ClInclude Include="System_fireworks_explode.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="System_sprite_render.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="System_fireworks_spawn.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="System_spark_fade.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="System_star_render.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="System_background_render.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="System_sprite_render.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="System_gdi_present.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Runtime.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Service_master_clock.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Service_graphics_gdi.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

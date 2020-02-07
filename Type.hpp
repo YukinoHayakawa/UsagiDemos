@@ -3,7 +3,6 @@
 #include <Usagi/Math/Matrix.hpp>
 #include <Usagi/Experimental/v2/Game/Entity/Archetype.hpp>
 #include <Usagi/Experimental/v2/Game/Database/EntityDatabase.hpp>
-#include <Usagi/Experimental/v2/Game/_detail/ComponentFilter.hpp>
 
 using namespace usagi;
 

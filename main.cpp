@@ -7,7 +7,6 @@
 #define NDEBUG
 
 #include <Usagi/Utility/Utf8Main.hpp>
-#include <Usagi/Core/Clock.hpp>
 #include <Usagi/Experimental/v2/Game/_detail/EntityDatabaseAccessExternal.hpp>
 
 #include "System_fireworks_spawn.hpp"
@@ -16,6 +15,8 @@
 #include "System_physics.hpp"
 #include "System_remove_out_of_bound.hpp"
 #include "System_spark_fade.hpp"
+#include "System_gdi_present.hpp"
+#include "Service_master_clock.hpp"
 
 #define UPDATE_SYSTEM(sys) \
     sys.update(rt, EntityDatabaseAccessExternal< \
@@ -34,17 +35,19 @@ int usagi_main(const std::vector<std::string> &args)
     System_physics              sys_physics;
     System_remove_out_of_bound  sys_remove_oob;
     System_sprite_render        sys_render;
+    System_gdi_present          sys_present;
 
     using namespace std::chrono_literals;
 
     struct RuntimeServices
+        : Service_master_clock_default
+        , Service_graphics_gdi
     {
-        Clock master_clock;
     } rt;
 
     while(true)
     {
-        rt.master_clock.tick();
+        USAGI_SERVICE(rt, Service_master_clock).tick();
 
         UPDATE_SYSTEM(sys_spawn);
         UPDATE_SYSTEM(sys_explode);
@@ -52,6 +55,7 @@ int usagi_main(const std::vector<std::string> &args)
         UPDATE_SYSTEM(sys_physics);
         UPDATE_SYSTEM(sys_remove_oob);
         UPDATE_SYSTEM(sys_render);
+        UPDATE_SYSTEM(sys_present);
     }
 
     return 0;

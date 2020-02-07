@@ -1,8 +1,8 @@
 ﻿#pragma once
 
-#include <Usagi/Extensions/RtWin32/Win32.hpp>
-
 #include "Type.hpp"
+#include "Runtime.hpp"
+#include "Service_graphics_gdi.hpp"
 
 struct System_sprite_render
 {
@@ -12,32 +12,6 @@ struct System_sprite_render
         ComponentColor
     >;
 
-    HWND console_handle;
-    HDC cdc;
-    HBITMAP buffer;
-
-    // https://docs.microsoft.com/en-us/windows/win32/gdi/memory-device-contexts
-    // https://stackoverflow.com/questions/7502588/createcompatiblebitmap-and-createdibsection-memory-dcs
-    // https://devblogs.microsoft.com/oldnewthing/20170331-00/?p=95875
-
-    System_sprite_render()
-    {
-        console_handle = GetConsoleWindow();
-        SetWindowPos(console_handle, nullptr, 0, 0, 2000, 1200, SWP_NOMOVE);
-
-        HDC hdc = GetDC(console_handle);
-        cdc = CreateCompatibleDC(hdc);
-        buffer = CreateCompatibleBitmap(hdc, 1920, 1080);
-        ReleaseDC(console_handle, hdc);
-
-        SelectObject(cdc, buffer);
-    }
-
-    ~System_sprite_render()
-    {
-        DeleteDC(cdc);
-    }
-
     // EntityDB is a concept that covers all instantiations of the
     // database template
     // EntityDatabaseAccess adds layer of permission checking. if the system
@@ -46,6 +20,8 @@ struct System_sprite_render
     void update(RuntimeServices &&rt, EntityDatabaseAccess &&db)
     {
         // https://stackoverflow.com/questions/1937163/drawing-in-a-win32-console-on-c
+
+        HDC &cdc = USAGI_SERVICE(rt, Service_graphics_gdi).cdc;
 
         SelectObject(cdc, GetStockObject(WHITE_PEN));
         MoveToEx(cdc, 0, 1080, nullptr);
@@ -77,10 +53,9 @@ struct System_sprite_render
                 1080 - ((int)pos.position.y() + sprite.size)
             );
         }
-
-        GdiFlush();
-        HDC hdc = GetDC(console_handle);
-        BitBlt(hdc, 0, 0, 1920, 1080, cdc, 0, 0, SRCCOPY);
-        ReleaseDC(console_handle, hdc);
+        //
+        // // draw stats
+        // SelectObject(cdc, GetStockObject(ANSI_FIXED_FONT));
+        // TextOutW(cdc, 10, 10, L"Sample ANSI_FIXED_FONT text", 64);
     }
 };
