@@ -12,6 +12,13 @@ struct System_sprite_render
         ComponentColor
     >;
 
+    System_sprite_render()
+    {
+        HWND console_handle = GetConsoleWindow();
+
+        SetWindowPos(console_handle, nullptr, 0, 0, 2000, 1200, SWP_NOMOVE);
+    }
+
     // EntityDB is a concept that covers all instantiations of the
     // database template
     // EntityDatabaseAccess adds layer of permission checking. if the system
@@ -31,7 +38,7 @@ struct System_sprite_render
         LineTo(hdc, 1920, 0);
 
         SelectObject(hdc, GetStockObject(BLACK_BRUSH));
-        Rectangle(hdc, 0, 0, 1920, 1080);
+        // Rectangle(hdc, 0, 0, 1920, 1080);
 
         SelectObject(hdc, GetStockObject(DC_PEN));
         SelectObject(hdc, GetStockObject(DC_BRUSH));
@@ -41,7 +48,11 @@ struct System_sprite_render
             auto &sprite = USAGI_COMPONENT(e, ComponentSprite);
             auto &color = USAGI_COMPONENT(e, ComponentColor);
 
-            const auto rgb = RGB(color.r, color.g, color.b);
+            const auto rgb = RGB(
+                (int)color.rgb.x(),
+                (int)color.rgb.y(),
+                (int)color.rgb.z()
+            );
             SetDCPenColor(hdc, rgb);
             SetDCBrushColor(hdc, rgb);
             Rectangle(hdc,

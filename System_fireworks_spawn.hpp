@@ -14,7 +14,7 @@ struct System_fireworks_spawn
     std::uniform_real_distribution<float> dis { .1f, 1.f };
     std::uniform_real_distribution<float> dis_x { 100, 1820 };
     std::uniform_real_distribution<float> dis_v { 250, 300 };
-    std::uniform_int_distribution<> dis_color { 0, 255 };
+    std::uniform_real_distribution<float> dis_color { 0, 255 };
     Clock timer;
     float wait_time_sec = dis(gen);
 
@@ -32,9 +32,8 @@ struct System_fireworks_spawn
             fireworks.val<ComponentPhysics>().velocity = { 0, dis_v(gen) };
             fireworks.val<ComponentPhysics>().acceleration = { 0, 0 };
             fireworks.val<ComponentSprite>().size = 15;
-            fireworks.val<ComponentColor>().r = dis_color(gen);
-            fireworks.val<ComponentColor>().g = dis_color(gen);
-            fireworks.val<ComponentColor>().b = dis_color(gen);
+            fireworks.val<ComponentColor>().rgb =
+                { dis_color(gen), dis_color(gen), dis_color(gen) };
 
             const EntityId e = db.create(fireworks);
 

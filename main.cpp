@@ -15,6 +15,7 @@
 #include "System_sprite_render.hpp"
 #include "System_physics.hpp"
 #include "System_remove_out_of_bound.hpp"
+#include "System_spark_fade.hpp"
 
 #define UPDATE_SYSTEM(sys) \
     sys.update(rt, EntityDatabaseAccessExternal< \
@@ -29,6 +30,7 @@ int usagi_main(const std::vector<std::string> &args)
 
     System_fireworks_spawn      sys_spawn;
     System_fireworks_explode    sys_explode;
+    System_spark_fade           sys_fade;
     System_physics              sys_physics;
     System_remove_out_of_bound  sys_remove_oob;
     System_sprite_render        sys_render;
@@ -46,6 +48,7 @@ int usagi_main(const std::vector<std::string> &args)
 
         UPDATE_SYSTEM(sys_spawn);
         UPDATE_SYSTEM(sys_explode);
+        UPDATE_SYSTEM(sys_fade);
         UPDATE_SYSTEM(sys_physics);
         UPDATE_SYSTEM(sys_remove_oob);
         UPDATE_SYSTEM(sys_render);

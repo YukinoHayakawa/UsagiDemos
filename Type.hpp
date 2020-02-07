@@ -18,8 +18,9 @@ static_assert(Component<ComponentFireworks>);
 
 struct ComponentSpark
 {
-    float brightness;
-    float fade_speed;
+    float fade_time_total;
+    float fade_time_left;
+    Vector3f base_color;
 };
 static_assert(Component<ComponentSpark>);
 
@@ -44,7 +45,7 @@ static_assert(Component<ComponentSprite>);
 
 struct ComponentColor
 {
-    int r, g, b;
+    Vector3f rgb;
 };
 static_assert(Component<ComponentColor>);
 

@@ -41,5 +41,8 @@
     <ClInclude Include="System_fireworks_spawn.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="System_spark_fade.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -30,6 +30,7 @@ struct System_fireworks_explode
     std::mt19937 gen { std::random_device()() };
     std::uniform_real_distribution<float> dis { 0, 2 * M_PI<float> };
     std::uniform_real_distribution<float> dis_v { 50, 150 };
+    std::uniform_real_distribution<float> dis_ft { 2, 4 };
 
     template <typename RuntimeServices, typename EntityDatabaseAccess>
     void update(RuntimeServices &&rt, EntityDatabaseAccess &&db)
@@ -39,23 +40,31 @@ struct System_fireworks_explode
             ComponentPosition
         >()))
         {
-            auto &f_c = USAGI_COMPONENT(e, ComponentFireworks);
+            auto &f_f = USAGI_COMPONENT(e, ComponentFireworks);
             auto &f_phy = USAGI_COMPONENT(e, ComponentPhysics);
+            auto &f_c = USAGI_COMPONENT(e, ComponentColor);
 
             // f_c.time_to_explode -= 1.f / 60;
             if(f_phy.velocity.y() < 1)
             {
-                for(auto i = 0; i < f_c.num_sparks; ++i)
+                for(auto i = 0; i < f_f.num_sparks; ++i)
                 {
-                    spark.val<ComponentSpark>();
-                    // copy the rocket position
+                    spark.val<ComponentSpark>().fade_time_total =
+                    spark.val<ComponentSpark>().fade_time_left =
+                        dis_ft(gen);
+                    spark.val<ComponentSpark>().base_color = f_c.rgb;
+
+                    // copy the rocket position & color
                     spark.val<ComponentPosition>() =
                         USAGI_COMPONENT(e, ComponentPosition);
+                    spark.val<ComponentColor>() =
+                        USAGI_COMPONENT(e, ComponentColor);
+
+                    // set particle props
                     spark.val<ComponentPhysics>().velocity =
                         polarToCartesian(dis_v(gen), dis(gen));
                     spark.val<ComponentSprite>().size = 5;
-                    spark.val<ComponentColor>() =
-                        USAGI_COMPONENT(e, ComponentColor);
+
                     db.create(spark);
                 }
                 e.destroy();

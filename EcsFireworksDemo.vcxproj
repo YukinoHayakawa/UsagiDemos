@@ -108,6 +108,7 @@
     <ClInclude Include="System_fireworks_spawn.hpp" />
     <ClInclude Include="System_physics.hpp" />
     <ClInclude Include="System_remove_out_of_bound.hpp" />
+    <ClInclude Include="System_spark_fade.hpp" />
     <ClInclude Include="System_sprite_render.hpp" />
     <ClInclude Include="Type.hpp" />
   </ItemGroup>
