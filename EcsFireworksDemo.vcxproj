@@ -93,6 +93,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="PerfTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Extensions\Usagi\Extensions\RtWin32\RtWin32.vcxproj">
@@ -101,6 +102,14 @@
     <ProjectReference Include="..\..\Usagi\Usagi\Usagi.vcxproj">
       <Project>{4250e1c0-ea0b-4575-bc04-11e7f83c2ed4}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="System_fireworks_explode.hpp" />
+    <ClInclude Include="System_fireworks_spawn.hpp" />
+    <ClInclude Include="System_physics.hpp" />
+    <ClInclude Include="System_remove_out_of_bound.hpp" />
+    <ClInclude Include="System_sprite_render.hpp" />
+    <ClInclude Include="Type.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
