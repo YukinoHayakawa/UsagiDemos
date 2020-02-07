@@ -56,18 +56,26 @@ struct ComponentSprite
 };
 static_assert(Component<ComponentSprite>);
 
+struct ComponentColor
+{
+    int r, g, b;
+};
+static_assert(Component<ComponentColor>);
+
 using ArchetypeFireworks = Archetype<
     ComponentFireworks,
     ComponentPosition,
     ComponentPhysics,
-    ComponentSprite
+    ComponentSprite,
+    ComponentColor
 >;
 
 using ArchetypeSpark = Archetype<
     ComponentSpark,
     ComponentPosition,
     ComponentPhysics,
-    ComponentSprite
+    ComponentSprite,
+    ComponentColor
 >;
 
 // todo infer components from systems
@@ -78,7 +86,8 @@ using Database = EntityDatabase<
         ComponentSpark,
         ComponentPosition,
         ComponentPhysics,
-        ComponentSprite
+        ComponentSprite,
+        ComponentColor
     >
 >;
 
@@ -93,6 +102,7 @@ struct SystemFireworksSpawn
     std::uniform_real_distribution<float> dis { .5f, 1.5f };
     std::uniform_real_distribution<float> dis_x { 100, 1820 };
     std::uniform_real_distribution<float> dis_v { 250, 300 };
+    std::uniform_int_distribution<> dis_color { 0, 255 };
     Clock timer;
     float wait_time_sec = dis(gen);
 
@@ -110,6 +120,9 @@ struct SystemFireworksSpawn
             fireworks.val<ComponentPhysics>().velocity = { 0, dis_v(gen) };
             fireworks.val<ComponentPhysics>().acceleration = { 0, 0 };
             fireworks.val<ComponentSprite>().size = 15;
+            fireworks.val<ComponentColor>().r = dis_color(gen);
+            fireworks.val<ComponentColor>().g = dis_color(gen);
+            fireworks.val<ComponentColor>().b = dis_color(gen);
 
             const EntityId e = db.create(fireworks);
 
@@ -173,13 +186,15 @@ struct SystemFireworksExplode
         ComponentSpark,
         ComponentPosition,
         ComponentPhysics,
-        ComponentSprite
+        ComponentSprite,
+        ComponentColor
     >;
 
     ArchetypeSpark spark;
 
     std::mt19937 gen { std::random_device()() };
     std::uniform_real_distribution<float> dis { 0, 2 * M_PI<float> };
+    std::uniform_real_distribution<float> dis_v { 50, 150 };
 
     template <typename RuntimeServiceProvider, typename EntityDatabaseAccess>
     void update(RuntimeServiceProvider &&rt, EntityDatabaseAccess &&db)
@@ -202,8 +217,10 @@ struct SystemFireworksExplode
                     spark.val<ComponentPosition>() =
                         USAGI_COMPONENT(e, ComponentPosition);
                     spark.val<ComponentPhysics>().velocity =
-                        polarToCartesian(150, dis(gen));
+                        polarToCartesian(dis_v(gen), dis(gen));
                     spark.val<ComponentSprite>().size = 5;
+                    spark.val<ComponentColor>() =
+                        USAGI_COMPONENT(e, ComponentColor);
                     db.create(spark); // <- bug create entities during iteration will invalidate the iterators
                 }
                 e.destroy();
@@ -214,7 +231,11 @@ struct SystemFireworksExplode
 
 struct SystemSpriteRendering
 {
-    using ReadAccess = ComponentFilter<ComponentPosition, ComponentSprite>;
+    using ReadAccess = ComponentFilter<
+        ComponentPosition,
+        ComponentSprite,
+        ComponentColor
+    >;
 
     // EntityDB is a concept that covers all instantiations of the
     // database template
@@ -234,16 +255,20 @@ struct SystemSpriteRendering
         LineTo(hdc, 1920, 1080);
         LineTo(hdc, 1920, 0);
 
-        // SelectObject(hdc, GetStockObject(BLACK_PEN));
-        // SetDCBrushColor(hdc, RGB(0, 0, 0));
         SelectObject(hdc, GetStockObject(BLACK_BRUSH));
         Rectangle(hdc, 0, 0, 1920, 1080);
 
+        SelectObject(hdc, GetStockObject(DC_PEN));
+        SelectObject(hdc, GetStockObject(DC_BRUSH));
         for(auto &&e : db.view(ReadAccess()))
         {
             auto &pos = USAGI_COMPONENT(e, ComponentPosition);
             auto &sprite = USAGI_COMPONENT(e, ComponentSprite);
+            auto &color = USAGI_COMPONENT(e, ComponentColor);
 
+            const auto rgb = RGB(color.r, color.g, color.b);
+            SetDCPenColor(hdc, rgb);
+            SetDCBrushColor(hdc, rgb);
             Rectangle(hdc,
                 (int)pos.position.x(),
                 1080 - (int)pos.position.y(),
@@ -302,7 +327,7 @@ int usagi_main(const std::vector<std::string> &args)
             Database,
             ComponentAccessSystemAttribute<SystemSpriteRendering>
         >(&db));
-        std::this_thread::sleep_for(16ms);
+        // std::this_thread::sleep_for(16ms);
     }
 
     return 0;
