@@ -12,11 +12,30 @@ struct System_sprite_render
         ComponentColor
     >;
 
+    HWND console_handle;
+    HDC cdc;
+    HBITMAP buffer;
+
+    // https://docs.microsoft.com/en-us/windows/win32/gdi/memory-device-contexts
+    // https://stackoverflow.com/questions/7502588/createcompatiblebitmap-and-createdibsection-memory-dcs
+    // https://devblogs.microsoft.com/oldnewthing/20170331-00/?p=95875
+
     System_sprite_render()
     {
-        HWND console_handle = GetConsoleWindow();
-
+        console_handle = GetConsoleWindow();
         SetWindowPos(console_handle, nullptr, 0, 0, 2000, 1200, SWP_NOMOVE);
+
+        HDC hdc = GetDC(console_handle);
+        cdc = CreateCompatibleDC(hdc);
+        buffer = CreateCompatibleBitmap(hdc, 1920, 1080);
+        ReleaseDC(console_handle, hdc);
+
+        SelectObject(cdc, buffer);
+    }
+
+    ~System_sprite_render()
+    {
+        DeleteDC(cdc);
     }
 
     // EntityDB is a concept that covers all instantiations of the
@@ -28,20 +47,16 @@ struct System_sprite_render
     {
         // https://stackoverflow.com/questions/1937163/drawing-in-a-win32-console-on-c
 
-        // Get window handle to console, and device context
-        HWND console_handle = GetConsoleWindow();
-        HDC hdc = GetDC(console_handle);
+        SelectObject(cdc, GetStockObject(WHITE_PEN));
+        MoveToEx(cdc, 0, 1080, nullptr);
+        LineTo(cdc, 1920, 1080);
+        LineTo(cdc, 1920, 0);
 
-        SelectObject(hdc, GetStockObject(WHITE_PEN));
-        MoveToEx(hdc, 0, 1080, nullptr);
-        LineTo(hdc, 1920, 1080);
-        LineTo(hdc, 1920, 0);
+        SelectObject(cdc, GetStockObject(BLACK_BRUSH));
+        Rectangle(cdc, 0, 0, 1920, 1080);
 
-        SelectObject(hdc, GetStockObject(BLACK_BRUSH));
-        Rectangle(hdc, 0, 0, 1920, 1080);
-
-        SelectObject(hdc, GetStockObject(DC_PEN));
-        SelectObject(hdc, GetStockObject(DC_BRUSH));
+        SelectObject(cdc, GetStockObject(DC_PEN));
+        SelectObject(cdc, GetStockObject(DC_BRUSH));
         for(auto &&e : db.view(ReadAccess()))
         {
             auto &pos = USAGI_COMPONENT(e, ComponentPosition);
@@ -53,9 +68,9 @@ struct System_sprite_render
                 (int)color.rgb.y(),
                 (int)color.rgb.z()
             );
-            SetDCPenColor(hdc, rgb);
-            SetDCBrushColor(hdc, rgb);
-            Rectangle(hdc,
+            SetDCPenColor(cdc, rgb);
+            SetDCBrushColor(cdc, rgb);
+            Rectangle(cdc,
                 (int)pos.position.x(),
                 1080 - (int)pos.position.y(),
                 (int)pos.position.x()+ sprite.size,
@@ -63,6 +78,9 @@ struct System_sprite_render
             );
         }
 
+        GdiFlush();
+        HDC hdc = GetDC(console_handle);
+        BitBlt(hdc, 0, 0, 1920, 1080, cdc, 0, 0, SRCCOPY);
         ReleaseDC(console_handle, hdc);
     }
 };

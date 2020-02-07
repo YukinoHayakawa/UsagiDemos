@@ -30,7 +30,7 @@ struct System_fireworks_explode
     std::mt19937 gen { std::random_device()() };
     std::uniform_real_distribution<float> dis { 0, 2 * M_PI<float> };
     std::uniform_real_distribution<float> dis_v { 50, 150 };
-    std::uniform_real_distribution<float> dis_ft { 3, 5 };
+    std::uniform_real_distribution<float> dis_ft { 1, 2.5f };
 
     template <typename RuntimeServices, typename EntityDatabaseAccess>
     void update(RuntimeServices &&rt, EntityDatabaseAccess &&db)
@@ -45,7 +45,7 @@ struct System_fireworks_explode
             auto &f_c = USAGI_COMPONENT(e, ComponentColor);
 
             // f_c.time_to_explode -= 1.f / 60;
-            if(f_phy.velocity.y() < 1)
+            if(f_phy.velocity.y() < 10)
             {
                 for(auto i = 0; i < f_f.num_sparks; ++i)
                 {
