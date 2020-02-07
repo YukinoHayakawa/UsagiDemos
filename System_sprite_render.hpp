@@ -19,20 +19,15 @@ struct System_sprite_render
     template <typename RuntimeServices, typename EntityDatabaseAccess>
     void update(RuntimeServices &&rt, EntityDatabaseAccess &&db)
     {
-        // https://stackoverflow.com/questions/1937163/drawing-in-a-win32-console-on-c
 
         HDC &cdc = USAGI_SERVICE(rt, Service_graphics_gdi).cdc;
+        Bitmap &bitmap = USAGI_SERVICE(rt, Service_graphics_gdi).bitmap;
 
         SelectObject(cdc, GetStockObject(WHITE_PEN));
         MoveToEx(cdc, 0, 1080, nullptr);
         LineTo(cdc, 1920, 1080);
         LineTo(cdc, 1920, 0);
 
-        SelectObject(cdc, GetStockObject(BLACK_BRUSH));
-        Rectangle(cdc, 0, 0, 1920, 1080);
-
-        SelectObject(cdc, GetStockObject(DC_PEN));
-        SelectObject(cdc, GetStockObject(DC_BRUSH));
         for(auto &&e : db.view(ReadAccess()))
         {
             auto &pos = USAGI_COMPONENT(e, ComponentPosition);
@@ -44,13 +39,12 @@ struct System_sprite_render
                 (int)color.rgb.y(),
                 (int)color.rgb.z()
             );
-            SetDCPenColor(cdc, rgb);
-            SetDCBrushColor(cdc, rgb);
-            Rectangle(cdc,
+            bitmap.fill_rect(
                 (int)pos.position.x(),
-                1080 - (int)pos.position.y(),
-                (int)pos.position.x()+ sprite.size,
-                1080 - ((int)pos.position.y() + sprite.size)
+                (int)pos.position.y(),
+                sprite.size,
+                sprite.size,
+                rgb
             );
         }
         //
