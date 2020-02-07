@@ -108,8 +108,8 @@ struct SystemFireworksSpawn
 
     ArchetypeFireworks fireworks;
 
-    template <typename RuntimeServiceProvider, typename EntityDatabaseAccess>
-    void update(RuntimeServiceProvider &&svc, EntityDatabaseAccess &&db)
+    template <typename RuntimeServices, typename EntityDatabaseAccess>
+    void update(RuntimeServices &&svc, EntityDatabaseAccess &&db)
     {
         if(timer.now() > wait_time_sec)
         // for(auto i = 0; i < 17; ++i)
@@ -138,11 +138,11 @@ struct SystemPhysics
 
     Vector2f global_gravity { 0, -50 };
 
-    template <typename RuntimeServiceProvider, typename EntityDatabaseAccess>
-    void update(RuntimeServiceProvider &&rt, EntityDatabaseAccess &&db)
+    template <typename RuntimeServices, typename EntityDatabaseAccess>
+    void update(RuntimeServices &&rt, EntityDatabaseAccess &&db)
     {
-        // auto dt = rt.masterClock.elapsed();
-        float dt = 1.f / 16;
+        auto dt = rt.master_clock.elapsed();
+        // float dt = 1.f / 16;
         for(auto &&e : db.view(WriteAccess()))
         {
             auto &c_physics = USAGI_COMPONENT(e, ComponentPhysics);
@@ -159,8 +159,8 @@ struct SystemRemovePhysics
     using ReadAccess = ComponentFilter<ComponentPosition>;
     using WriteAccess = ComponentFilter<ComponentPhysics>;
 
-    template <typename RuntimeServiceProvider, typename EntityDatabaseAccess>
-    void update(RuntimeServiceProvider &&rt, EntityDatabaseAccess &&db)
+    template <typename RuntimeServices, typename EntityDatabaseAccess>
+    void update(RuntimeServices &&rt, EntityDatabaseAccess &&db)
     {
         for(auto &&e : db.view(WriteAccess()))
         {
@@ -196,8 +196,8 @@ struct SystemFireworksExplode
     std::uniform_real_distribution<float> dis { 0, 2 * M_PI<float> };
     std::uniform_real_distribution<float> dis_v { 50, 150 };
 
-    template <typename RuntimeServiceProvider, typename EntityDatabaseAccess>
-    void update(RuntimeServiceProvider &&rt, EntityDatabaseAccess &&db)
+    template <typename RuntimeServices, typename EntityDatabaseAccess>
+    void update(RuntimeServices &&rt, EntityDatabaseAccess &&db)
     {
         for(auto &&e : db.view(ComponentFilter<
             ComponentFireworks,
@@ -241,8 +241,8 @@ struct SystemSpriteRendering
     // database template
     // EntityDatabaseAccess adds layer of permission checking. if the system
     // does not have access to some components, the access is denied.
-    template <typename RuntimeServiceProvider, typename EntityDatabaseAccess>
-    void update(RuntimeServiceProvider &&rt, EntityDatabaseAccess &&db)
+    template <typename RuntimeServices, typename EntityDatabaseAccess>
+    void update(RuntimeServices &&rt, EntityDatabaseAccess &&db)
     {
         // https://stackoverflow.com/questions/1937163/drawing-in-a-win32-console-on-c
 
@@ -288,8 +288,6 @@ int usagi_main(const std::vector<std::string> &args)
 {
     Database db;
 
-    int rt = 0;
-
     SystemFireworksSpawn sys_spawn;
     SystemFireworksExplode sys_explode;
     SystemPhysics sys_physics;
@@ -305,8 +303,16 @@ int usagi_main(const std::vector<std::string> &args)
 
     using namespace std::chrono_literals;
 
+
+    struct RuntimeServices
+    {
+        Clock master_clock;
+    } rt;
+
     while(true)
     {
+        rt.master_clock.tick();
+
         sys_spawn.update(rt, EntityDatabaseAccessExternal<
             Database,
             ComponentAccessSystemAttribute<SystemFireworksSpawn>
@@ -340,8 +346,8 @@ struct SystemSparkFading
 {
     using WriteAccess = ComponentFilter<ComponentSpark>;
 
-    template <typename RuntimeServiceProvider, typename EntityDatabaseAccess>
-    void update(RuntimeServiceProvider &&rt, EntityDatabaseAccess &&db)
+    template <typename RuntimeServices, typename EntityDatabaseAccess>
+    void update(RuntimeServices &&rt, EntityDatabaseAccess &&db)
     {
         auto view = db.view<write_access_t>;
 
@@ -357,8 +363,8 @@ struct SystemSparkFading
 
 struct SystemIterateAllEntities
 {
-    template <typename RuntimeServiceProvider, typename EntityDatabaseAccess>
-    __declspec(noinline) auto update(RuntimeServiceProvider &&rt, EntityDatabaseAccess &&db)
+    template <typename RuntimeServices, typename EntityDatabaseAccess>
+    __declspec(noinline) auto update(RuntimeServices &&rt, EntityDatabaseAccess &&db)
     {
         std::size_t i = 0;
         double sum = 0;
@@ -392,8 +398,8 @@ struct SystemIterateFilteredEntities
     using ReadAccess = ComponentFilter<ComponentFireworks>;
     using WriteAccess = ComponentFilter<ComponentFireworks, ComponentPosition>;
 
-    template <typename RuntimeServiceProvider, typename EntityDatabaseAccess>
-    __declspec(noinline) auto update(RuntimeServiceProvider &&rt, EntityDatabaseAccess &&db)
+    template <typename RuntimeServices, typename EntityDatabaseAccess>
+    __declspec(noinline) auto update(RuntimeServices &&rt, EntityDatabaseAccess &&db)
     {
         std::size_t i = 0;
         double sum = 0;
