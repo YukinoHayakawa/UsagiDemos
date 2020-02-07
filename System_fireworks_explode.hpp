@@ -30,7 +30,7 @@ struct System_fireworks_explode
     std::mt19937 gen { std::random_device()() };
     std::uniform_real_distribution<float> dis { 0, 2 * M_PI<float> };
     std::uniform_real_distribution<float> dis_v { 50, 150 };
-    std::uniform_real_distribution<float> dis_ft { 2, 4 };
+    std::uniform_real_distribution<float> dis_ft { 3, 5 };
 
     template <typename RuntimeServices, typename EntityDatabaseAccess>
     void update(RuntimeServices &&rt, EntityDatabaseAccess &&db)

@@ -38,7 +38,7 @@ struct System_sprite_render
         LineTo(hdc, 1920, 0);
 
         SelectObject(hdc, GetStockObject(BLACK_BRUSH));
-        // Rectangle(hdc, 0, 0, 1920, 1080);
+        Rectangle(hdc, 0, 0, 1920, 1080);
 
         SelectObject(hdc, GetStockObject(DC_PEN));
         SelectObject(hdc, GetStockObject(DC_BRUSH));

@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include <Usagi/Math/Bezier.hpp>
+
 #include "Type.hpp"
 
 struct System_spark_fade
@@ -22,8 +24,11 @@ struct System_spark_fade
             if(f_s.fade_time_left < 0)
                 e.destroy();
 
-            f_c.rgb = (f_s.fade_time_left / f_s.fade_time_total) *
-                f_s.base_color;
+            const auto t = cssCubicBezier(
+                0.215f, 0.61f, 0.355f, 1.f,
+                f_s.fade_time_left / f_s.fade_time_total
+            );
+            f_c.rgb = t * f_s.base_color;
         }
     }
 };
