@@ -6,7 +6,7 @@
 
 struct System_physics
 {
-    using WriteAccess = ComponentFilter<ComponentPosition, ComponentPhysics>;
+    using WriteAccess = ComponentFilter<ComponentPhysics, ComponentPosition>;
 
     Vector2f global_gravity { 0, -50 };
 

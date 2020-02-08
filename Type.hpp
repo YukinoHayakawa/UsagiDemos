@@ -68,7 +68,6 @@ using ArchetypeSpark = Archetype<
 
 // todo infer components from systems
 using Database = EntityDatabase<
-    16,
     ComponentFilter<
         ComponentFireworks,
         ComponentSpark,

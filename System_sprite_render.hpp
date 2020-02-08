@@ -7,8 +7,8 @@
 struct System_sprite_render
 {
     using ReadAccess = ComponentFilter<
-        ComponentPosition,
         ComponentSprite,
+        ComponentPosition,
         ComponentColor
     >;
 
@@ -19,7 +19,6 @@ struct System_sprite_render
     template <typename RuntimeServices, typename EntityDatabaseAccess>
     void update(RuntimeServices &&rt, EntityDatabaseAccess &&db)
     {
-
         HDC &cdc = USAGI_SERVICE(rt, Service_graphics_gdi).cdc;
         Bitmap &bitmap = USAGI_SERVICE(rt, Service_graphics_gdi).bitmap;
 

@@ -11,7 +11,7 @@ struct System_fireworks_spawn
     using WriteAccess = ArchetypeFireworks::ComponentFilterT;
 
     std::mt19937 gen { std::random_device()() };
-    std::uniform_real_distribution<float> dis { .1f, .5f };
+    std::uniform_real_distribution<float> dis { .001f, .005f };
     std::uniform_real_distribution<float> dis_x { 100, 1820 };
     std::uniform_real_distribution<float> dis_v { 250, 300 };
     std::uniform_real_distribution<float> dis_color { 0, 255 };

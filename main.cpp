@@ -61,6 +61,8 @@ int usagi_main(const std::vector<std::string> &args)
         UPDATE_SYSTEM(sys_bg);
         UPDATE_SYSTEM(sys_render);
         UPDATE_SYSTEM(sys_present);
+
+        db.reclaim_pages();
     }
 
     return 0;
