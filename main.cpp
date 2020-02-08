@@ -51,6 +51,8 @@ int usagi_main(const std::vector<std::string> &args)
     {
         USAGI_SERVICE(rt, Service_master_clock).tick();
 
+        pump_messages();
+
         UPDATE_SYSTEM(sys_spawn);
         UPDATE_SYSTEM(sys_explode);
         UPDATE_SYSTEM(sys_fade);

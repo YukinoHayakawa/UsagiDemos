@@ -94,6 +94,7 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PerfTest.cpp" />
+    <ClCompile Include="Service_graphics_gdi.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Extensions\Usagi\Extensions\RtWin32\RtWin32.vcxproj">

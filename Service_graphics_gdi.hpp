@@ -1,5 +1,8 @@
 ﻿#pragma once
 
+#include <memory>
+#include <algorithm>
+
 #include <Usagi/Extensions/RtWin32/Win32.hpp>
 
 namespace usagi
@@ -34,9 +37,12 @@ struct Bitmap
     }
 };
 
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+void pump_messages();
+
 struct GdiGraphics
 {
-    HWND console_handle;
+    HWND hwnd;
     HDC cdc;
     HBITMAP bitmap_handle;
     Bitmap bitmap;
@@ -48,11 +54,40 @@ struct GdiGraphics
 
     GdiGraphics()
     {
+        // https://docs.microsoft.com/en-us/windows/win32/learnwin32/your-first-windows-program
 
-        console_handle = GetConsoleWindow();
-        SetWindowPos(console_handle, nullptr, 0, 0, 2000, 1200, SWP_NOMOVE);
+        // Register the window class.
+        const wchar_t CLASS_NAME[]  = L"Sample Window Class";
 
-        HDC hdc = GetDC(console_handle);
+        WNDCLASS wc = { };
+
+        wc.lpfnWndProc   = WindowProc;
+        wc.hInstance     = GetModuleHandle(NULL);
+        wc.lpszClassName = CLASS_NAME;
+
+        RegisterClass(&wc);
+
+        // Create the window.
+
+        hwnd = CreateWindowEx(
+            0,                              // Optional window styles.
+            CLASS_NAME,                     // Window class
+            L"ECS Fireworks Demo",    // Window text
+            WS_OVERLAPPEDWINDOW,            // Window style
+
+                                            // Size and position
+            CW_USEDEFAULT, CW_USEDEFAULT, 2000, 1200,
+
+            NULL,       // Parent window
+            NULL,       // Menu
+            wc.hInstance,  // Instance handle
+            NULL        // Additional application data
+        );
+
+        ShowWindow(hwnd, true);
+
+
+        HDC hdc = GetDC(hwnd);
         cdc = CreateCompatibleDC(hdc);
 
         BITMAPINFO bi;
@@ -67,7 +102,7 @@ struct GdiGraphics
             cdc, &bi, DIB_RGB_COLORS,
             (LPVOID*)&bitmap.buffer, NULL, 0);
 
-        ReleaseDC(console_handle, hdc);
+        ReleaseDC(hwnd, hdc);
 
         SelectObject(cdc, bitmap_handle);
     }
@@ -80,9 +115,9 @@ struct GdiGraphics
     void present()
     {
         GdiFlush();
-        HDC hdc = GetDC(console_handle);
+        HDC hdc = GetDC(hwnd);
         BitBlt(hdc, 0, 0, 1920, 1080, cdc, 0, 0, SRCCOPY);
-        ReleaseDC(console_handle, hdc);
+        ReleaseDC(hwnd, hdc);
     }
 };
 
