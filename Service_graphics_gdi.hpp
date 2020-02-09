@@ -69,20 +69,30 @@ struct GdiGraphics
 
         // Create the window.
 
+        const auto style = WS_OVERLAPPEDWINDOW;
+
+        RECT rect = { };
+        rect.right = 1920;
+        rect.bottom = 1080;
+        AdjustWindowRect(&rect, style, FALSE);
+
         hwnd = CreateWindowEx(
             0,                              // Optional window styles.
             CLASS_NAME,                     // Window class
             L"ECS Fireworks Demo",    // Window text
-            WS_OVERLAPPEDWINDOW,            // Window style
+            style,            // Window style
 
                                             // Size and position
-            CW_USEDEFAULT, CW_USEDEFAULT, 2000, 1200,
+            CW_USEDEFAULT, CW_USEDEFAULT,
+            rect.right - rect.left,
+            rect.bottom - rect.top,
 
             NULL,       // Parent window
             NULL,       // Menu
             wc.hInstance,  // Instance handle
             NULL        // Additional application data
         );
+
 
         ShowWindow(hwnd, true);
 
