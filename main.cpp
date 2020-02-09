@@ -18,6 +18,7 @@
 #include "System_gdi_present.hpp"
 #include "Service_master_clock.hpp"
 #include "System_background_render.hpp"
+#include "System_draw_stat.hpp"
 
 #define UPDATE_SYSTEM(sys) \
     sys.update(rt, EntityDatabaseAccessExternal< \
@@ -37,6 +38,7 @@ int usagi_main(const std::vector<std::string> &args)
     System_remove_out_of_bound  sys_remove_oob;
     System_background_render    sys_bg;
     System_sprite_render        sys_render;
+    System_draw_stat            sys_stat;
     System_gdi_present          sys_present;
 
     using namespace std::chrono_literals;
@@ -44,21 +46,46 @@ int usagi_main(const std::vector<std::string> &args)
     struct RuntimeServices
         : Service_master_clock_default
         , Service_graphics_gdi
+        , Service_stat
     {
     } rt;
 
-    while(run_game())
+    while(true)
     {
         USAGI_SERVICE(rt, Service_master_clock).tick();
+        auto &stat = USAGI_SERVICE(rt, Service_stat);
+
+        Clock timer;
+
+        if(!run_game()) break;
+        stat.time_input = timer.tick();
 
         UPDATE_SYSTEM(sys_spawn);
+        stat.time_spawn = timer.tick();
+
         UPDATE_SYSTEM(sys_explode);
+        stat.time_explode = timer.tick();
+
         UPDATE_SYSTEM(sys_fade);
+        stat.time_fade = timer.tick();
+
         UPDATE_SYSTEM(sys_physics);
+        stat.time_physics = timer.tick();
+
         UPDATE_SYSTEM(sys_remove_oob);
+        stat.time_remove = timer.tick();
+
         UPDATE_SYSTEM(sys_bg);
-        UPDATE_SYSTEM(sys_render);
+        stat.time_clear = timer.tick();
+
+        stat.sprite_count = UPDATE_SYSTEM(sys_render);
+        stat.time_render = timer.tick();
+
+        UPDATE_SYSTEM(sys_stat);
+        stat.time_stat = timer.tick();
+
         UPDATE_SYSTEM(sys_present);
+        stat.time_present = timer.tick();
 
         db.reclaim_pages();
     }

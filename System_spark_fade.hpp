@@ -22,13 +22,17 @@ struct System_spark_fade
             f_s.fade_time_left -= (float)rt.master_clock.elapsed();
 
             if(f_s.fade_time_left < 0)
+            {
                 e.destroy();
-
-            const auto t = cssCubicBezier(
-                0.215f, 0.61f, 0.355f, 1.f,
-                f_s.fade_time_left / f_s.fade_time_total
-            );
-            f_c.rgb = t * f_s.base_color;
+            }
+            else
+            {
+                const auto t = cssCubicBezier(
+                    0.215f, 0.61f, 0.355f, 1.f,
+                    f_s.fade_time_left / f_s.fade_time_total
+                );
+                f_c.rgb = t * f_s.base_color;
+            }
         }
     }
 };

@@ -10,7 +10,7 @@ struct System_background_render
     void update(RuntimeServices &&rt, EntityDatabaseAccess &&db)
     {
         Bitmap &bitmap = USAGI_SERVICE(rt, Service_graphics_gdi).bitmap;
-        bitmap.fill_rect(0, 0, 1920, 1080, 0);
+        bitmap.clear(0);
     }
 };
 

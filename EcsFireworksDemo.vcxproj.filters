@@ -65,5 +65,11 @@
     <ClInclude Include="Service_graphics_gdi.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Service_stat.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="System_draw_stat.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

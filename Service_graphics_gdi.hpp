@@ -30,6 +30,11 @@ struct Bitmap
             for(int j = std::max(0, y); j < std::min(y + h, height); ++j)
                 buffer[i + width * j].rgb = color;
     }
+
+    void clear(int v)
+    {
+        memset(buffer, v, width * height * 4);
+    }
 };
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);

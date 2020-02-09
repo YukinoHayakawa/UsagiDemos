@@ -17,7 +17,7 @@ struct System_sprite_render
     // EntityDatabaseAccess adds layer of permission checking. if the system
     // does not have access to some components, the access is denied.
     template <typename RuntimeServices, typename EntityDatabaseAccess>
-    void update(RuntimeServices &&rt, EntityDatabaseAccess &&db)
+    std::size_t update(RuntimeServices &&rt, EntityDatabaseAccess &&db)
     {
         HDC &cdc = USAGI_SERVICE(rt, Service_graphics_gdi).cdc;
         Bitmap &bitmap = USAGI_SERVICE(rt, Service_graphics_gdi).bitmap;
@@ -27,6 +27,7 @@ struct System_sprite_render
         LineTo(cdc, 1920, 1080);
         LineTo(cdc, 1920, 0);
 
+        std::size_t count = 0;
         for(auto &&e : db.view(ReadAccess()))
         {
             auto &pos = USAGI_COMPONENT(e, ComponentPosition);
@@ -45,10 +46,8 @@ struct System_sprite_render
                 sprite.size,
                 rgb
             );
+            ++count;
         }
-        //
-        // // draw stats
-        // SelectObject(cdc, GetStockObject(ANSI_FIXED_FONT));
-        // TextOutW(cdc, 10, 10, L"Sample ANSI_FIXED_FONT text", 64);
+        return count;
     }
 };
