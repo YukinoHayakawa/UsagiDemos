@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include <execution>
+
 #include "Type.hpp"
 #include "Service_master_clock.hpp"
 #include "Runtime.hpp"
@@ -17,21 +19,15 @@ struct System_physics
             USAGI_SERVICE(rt, Service_master_clock).elapsed()
         );
 
-        auto range = db.view(WriteAccess());
-        auto begin = range.begin();
-        auto end = range.end();
-
-        while(begin != end)
-        {
-            auto &&e = *begin;
-
-            auto &c_physics = USAGI_COMPONENT(e, ComponentPhysics);
-            auto &c_pos = USAGI_COMPONENT(e, ComponentPosition);
-            c_pos.position += c_physics.velocity * dt;
-            c_physics.velocity +=
-                (c_physics.acceleration + global_gravity) * dt;
-
-            ++begin;
-        }
+        std::for_each(std::execution::par, db.begin(), db.end(), [&](auto &&p) {
+            for(auto &&e : db.page_view(p, WriteAccess()))
+            {
+                auto &c_physics = USAGI_COMPONENT(e, ComponentPhysics);
+                auto &c_pos = USAGI_COMPONENT(e, ComponentPosition);
+                c_pos.position += c_physics.velocity * dt;
+                c_physics.velocity +=
+                    (c_physics.acceleration + global_gravity) * dt;
+            }
+        });
     }
 };

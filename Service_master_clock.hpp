@@ -16,7 +16,7 @@ struct Service_master_clock
 
 private:
     virtual ServiceType &get_service_impl() = 0;
-};;
+};
 
 struct Service_master_clock_default : Service_master_clock
 {

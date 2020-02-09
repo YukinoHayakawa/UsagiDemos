@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <random>
+#include <execution>
 
 #include <Usagi/Math/Constant.hpp>
 
@@ -25,6 +26,11 @@ struct System_fireworks_explode
         ComponentColor
     >;
 
+    using Filter = ComponentFilter<
+        ComponentFireworks,
+        ComponentPosition
+    >;
+
     ArchetypeSpark spark;
 
     std::mt19937 gen { std::random_device()() };
@@ -35,40 +41,39 @@ struct System_fireworks_explode
     template <typename RuntimeServices, typename EntityDatabaseAccess>
     void update(RuntimeServices &&rt, EntityDatabaseAccess &&db)
     {
-        for(auto &&e : db.view(ComponentFilter<
-            ComponentFireworks,
-            ComponentPosition
-        >()))
-        {
-            auto &f_f = USAGI_COMPONENT(e, ComponentFireworks);
-            auto &f_phy = USAGI_COMPONENT(e, ComponentPhysics);
-            auto &f_c = USAGI_COMPONENT(e, ComponentColor);
-
-            // f_c.time_to_explode -= 1.f / 60;
-            if(f_phy.velocity.y() < 10)
+        std::for_each(std::execution::par, db.begin(), db.end(), [&](auto &&p) {
+            for(auto &&e : db.page_view(p, Filter()))
             {
-                for(auto i = 0; i < f_f.num_sparks; ++i)
+                auto &f_f = USAGI_COMPONENT(e, ComponentFireworks);
+                auto &f_phy = USAGI_COMPONENT(e, ComponentPhysics);
+                auto &f_c = USAGI_COMPONENT(e, ComponentColor);
+
+                // f_c.time_to_explode -= 1.f / 60;
+                if(f_phy.velocity.y() < 10)
                 {
-                    spark.val<ComponentSpark>().fade_time_total =
-                    spark.val<ComponentSpark>().fade_time_left =
-                        dis_ft(gen);
-                    spark.val<ComponentSpark>().base_color = f_c.rgb;
+                    for(auto i = 0; i < f_f.num_sparks; ++i)
+                    {
+                        spark.val<ComponentSpark>().fade_time_total =
+                            spark.val<ComponentSpark>().fade_time_left =
+                            dis_ft(gen);
+                        spark.val<ComponentSpark>().base_color = f_c.rgb;
 
-                    // copy the rocket position & color
-                    spark.val<ComponentPosition>() =
-                        USAGI_COMPONENT(e, ComponentPosition);
-                    spark.val<ComponentColor>() =
-                        USAGI_COMPONENT(e, ComponentColor);
+                        // copy the rocket position & color
+                        spark.val<ComponentPosition>() =
+                            USAGI_COMPONENT(e, ComponentPosition);
+                        spark.val<ComponentColor>() =
+                            USAGI_COMPONENT(e, ComponentColor);
 
-                    // set particle props
-                    spark.val<ComponentPhysics>().velocity =
-                        polarToCartesian(dis_v(gen), dis(gen));
-                    spark.val<ComponentSprite>().size = 5;
+                        // set particle props
+                        spark.val<ComponentPhysics>().velocity =
+                            polarToCartesian(dis_v(gen), dis(gen));
+                        spark.val<ComponentSprite>().size = 5;
 
-                    db.create(spark);
+                        db.create(spark);
+                    }
+                    e.destroy();
                 }
-                e.destroy();
             }
-        }
+        });
     }
 };

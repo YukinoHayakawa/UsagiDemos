@@ -9,13 +9,15 @@ struct System_remove_out_of_bound
     template <typename RuntimeServices, typename EntityDatabaseAccess>
     void update(RuntimeServices &&rt, EntityDatabaseAccess &&db)
     {
-        for(auto &&e : db.view(ReadAccess()))
-        {
-            auto &c_pos = USAGI_COMPONENT(e, ComponentPosition);
-            if(c_pos.position.y() < 0 || c_pos.position.x() > 1920)
+        std::for_each(std::execution::par, db.begin(), db.end(), [&](auto &&p) {
+            for(auto &&e : db.page_view(p, ReadAccess()))
             {
-                e.destroy();
+                auto &c_pos = USAGI_COMPONENT(e, ComponentPosition);
+                if(c_pos.position.y() < 0 || c_pos.position.x() > 1920)
+                {
+                    e.destroy();
+                }
             }
-        }
+        });
     }
 };

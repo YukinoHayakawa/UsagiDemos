@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include <execution>
+
 #include "Type.hpp"
 #include "Runtime.hpp"
 #include "Service_graphics_gdi.hpp"
@@ -22,32 +24,30 @@ struct System_sprite_render
         HDC &cdc = USAGI_SERVICE(rt, Service_graphics_gdi).cdc;
         Bitmap &bitmap = USAGI_SERVICE(rt, Service_graphics_gdi).bitmap;
 
-        SelectObject(cdc, GetStockObject(WHITE_PEN));
-        MoveToEx(cdc, 0, 1080, nullptr);
-        LineTo(cdc, 1920, 1080);
-        LineTo(cdc, 1920, 0);
+        std::atomic<std::size_t> count = 0;
+        std::for_each(std::execution::par, db.begin(), db.end(), [&](auto &&p) {
+            for(auto &&e : db.page_view(p, ReadAccess()))
+            {
+                auto &pos = USAGI_COMPONENT(e, ComponentPosition);
+                auto &sprite = USAGI_COMPONENT(e, ComponentSprite);
+                auto &color = USAGI_COMPONENT(e, ComponentColor);
 
-        std::size_t count = 0;
-        for(auto &&e : db.view(ReadAccess()))
-        {
-            auto &pos = USAGI_COMPONENT(e, ComponentPosition);
-            auto &sprite = USAGI_COMPONENT(e, ComponentSprite);
-            auto &color = USAGI_COMPONENT(e, ComponentColor);
+                const auto rgb = RGB(
+                    (int)color.rgb.x(),
+                    (int)color.rgb.y(),
+                    (int)color.rgb.z()
+                );
+                bitmap.fill_rect(
+                    (int)pos.position.x(),
+                    (int)pos.position.y(),
+                    sprite.size,
+                    sprite.size,
+                    rgb
+                );
+                ++count; // VERY EXPENSIVE
+            }
+        });
 
-            const auto rgb = RGB(
-                (int)color.rgb.x(),
-                (int)color.rgb.y(),
-                (int)color.rgb.z()
-            );
-            bitmap.fill_rect(
-                (int)pos.position.x(),
-                (int)pos.position.y(),
-                sprite.size,
-                sprite.size,
-                rgb
-            );
-            ++count;
-        }
-        return count;
+        return count.load();
     }
 };

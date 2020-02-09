@@ -19,17 +19,18 @@ struct System_fireworks_spawn
     std::uniform_real_distribution<float> dis_color { 0, 255 };
 
     ArchetypeFireworks fireworks;
+    float time_pool = 0;
 
     template <typename RuntimeServices, typename EntityDatabaseAccess>
     void update(RuntimeServices &&rt, EntityDatabaseAccess &&db)
     {
-        auto dt = static_cast<float>(
+        time_pool += static_cast<float>(
             USAGI_SERVICE(rt, Service_master_clock).elapsed()
         );
 
-        while(dt > 0.f)
+        while(time_pool > 0.f)
         {
-            fireworks.val<ComponentFireworks>().num_sparks = 500;
+            fireworks.val<ComponentFireworks>().num_sparks = 250;
             fireworks.val<ComponentFireworks>().time_to_explode = 2;
             fireworks.val<ComponentPosition>().position = { dis_x(gen), 0 };
             fireworks.val<ComponentPhysics>().velocity = { 0, dis_v(gen) };
@@ -40,7 +41,7 @@ struct System_fireworks_spawn
 
             const EntityId e = db.create(fireworks);
 
-            dt -= 0.01f;
+            time_pool -= 0.003f;
         }
     }
 };

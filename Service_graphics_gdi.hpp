@@ -26,9 +26,11 @@ struct Bitmap
         const int h,
         const int color)
     {
-        for(int i = std::max(0, x); i < std::min(x + w, width); ++i)
-            for(int j = std::max(0, y); j < std::min(y + h, height); ++j)
-                buffer[i + width * j].rgb = color;
+        auto ii = std::min(x + w, width);
+        auto jj = std::min(y + h, height);
+        for(int j = std::max(0, y); j < jj; ++j)
+            for(int i = std::max(0, x); i < ii; ++i)
+                buffer[width * j + i].rgb = color;
     }
 
     void clear(int v)
