@@ -17,12 +17,7 @@ struct Bitmap
         int rgb;
     };
 
-    std::unique_ptr<Pixel> buffer;
-
-    Bitmap()
-    {
-        buffer.reset(new Pixel[width * height]);
-    }
+    Pixel *buffer = nullptr;
 
     void fill_rect(
         const int x,
@@ -33,12 +28,12 @@ struct Bitmap
     {
         for(int i = std::max(0, x); i < std::min(x + w, width); ++i)
             for(int j = std::max(0, y); j < std::min(y + h, height); ++j)
-                buffer.get()[i + width * j].rgb = color;
+                buffer[i + width * j].rgb = color;
     }
 };
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-void pump_messages();
+bool run_game();
 
 struct GdiGraphics
 {

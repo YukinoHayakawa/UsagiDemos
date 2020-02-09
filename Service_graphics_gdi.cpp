@@ -22,13 +22,17 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
-void pump_messages()
+bool run_game()
 {
-    MSG msg = { };
-    while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+    bool run = true;
+    MSG msg;
+    while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
     {
+        if(msg.message == WM_QUIT)
+            run = false;
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
+    return run;
 }
 }

@@ -47,11 +47,9 @@ int usagi_main(const std::vector<std::string> &args)
     {
     } rt;
 
-    while(true)
+    while(run_game())
     {
         USAGI_SERVICE(rt, Service_master_clock).tick();
-
-        pump_messages();
 
         UPDATE_SYSTEM(sys_spawn);
         UPDATE_SYSTEM(sys_explode);
