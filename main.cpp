@@ -4,7 +4,7 @@
 // some distance and explode. The sparks fly away from the explosion center
 // and gradually disappear.
 
-#define NDEBUG
+// #define NDEBUG
 
 #include <Usagi/Utility/Utf8Main.hpp>
 #include <Usagi/Experimental/v2/Game/_detail/EntityDatabaseAccessExternal.hpp>
@@ -19,6 +19,7 @@
 #include "Service_master_clock.hpp"
 #include "System_background_render.hpp"
 #include "System_draw_stat.hpp"
+#include "System_update_flag.hpp"
 
 #define UPDATE_SYSTEM(sys) \
     sys.update(rt, EntityDatabaseAccessExternal< \
@@ -40,6 +41,7 @@ int usagi_main(const std::vector<std::string> &args)
     System_sprite_render        sys_render;
     System_draw_stat            sys_stat;
     System_gdi_present          sys_present;
+    System_update_flag          sys_update_flag_test;
 
     using namespace std::chrono_literals;
 
@@ -47,6 +49,7 @@ int usagi_main(const std::vector<std::string> &args)
         : Service_master_clock_default
         , Service_graphics_gdi
         , Service_stat
+        // , Service_content_update_flag
     {
     } rt;
 
@@ -86,6 +89,8 @@ int usagi_main(const std::vector<std::string> &args)
 
         UPDATE_SYSTEM(sys_present);
         stat.time_present = timer.tick();
+
+        UPDATE_SYSTEM(sys_update_flag_test);
 
         db.reclaim_pages();
     }

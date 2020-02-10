@@ -31,8 +31,6 @@ struct System_fireworks_explode
         ComponentPosition
     >;
 
-    ArchetypeSpark spark;
-
     std::mt19937 gen { std::random_device()() };
     std::uniform_real_distribution<float> dis { 0, 2 * M_PI<float> };
     std::uniform_real_distribution<float> dis_v { 50, 150 };
@@ -41,7 +39,9 @@ struct System_fireworks_explode
     template <typename RuntimeServices, typename EntityDatabaseAccess>
     void update(RuntimeServices &&rt, EntityDatabaseAccess &&db)
     {
-        std::for_each(std::execution::par, db.begin(), db.end(), [&](auto &&p) {
+        std::for_each(std::execution::par, db.begin(), db.end(), [&](auto &&p) mutable {
+            static thread_local ArchetypeSpark spark;
+
             for(auto &&e : db.page_view(p, Filter()))
             {
                 auto &f_f = USAGI_COMPONENT(e, ComponentFireworks);

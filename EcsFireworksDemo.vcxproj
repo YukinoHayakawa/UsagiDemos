@@ -112,6 +112,7 @@
     <ClInclude Include="System_background_render.hpp" />
     <ClInclude Include="System_draw_stat.hpp" />
     <ClInclude Include="System_gdi_present.hpp" />
+    <ClInclude Include="Service_content_update_flag.hpp" />
     <ClInclude Include="System_star_render.hpp" />
     <ClInclude Include="System_fireworks_explode.hpp" />
     <ClInclude Include="System_fireworks_spawn.hpp" />
@@ -119,6 +120,7 @@
     <ClInclude Include="System_remove_out_of_bound.hpp" />
     <ClInclude Include="System_spark_fade.hpp" />
     <ClInclude Include="System_sprite_render.hpp" />
+    <ClInclude Include="System_update_flag.hpp" />
     <ClInclude Include="Type.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
