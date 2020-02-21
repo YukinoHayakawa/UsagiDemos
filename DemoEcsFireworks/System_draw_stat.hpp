@@ -1,11 +1,12 @@
 ﻿#pragma once
 
 #include <Usagi/Game/_detail/ComponentFilter.hpp>
+#include <Usagi/Runtime/Service.hpp>
 
-#include "Runtime.hpp"
 #include "Service_master_clock.hpp"
 #include "Service_graphics_gdi.hpp"
 #include "Service_stat.hpp"
+
 #include <psapi.h>
 
 namespace usagi

@@ -8,10 +8,10 @@
 
 #include <Usagi/Game/_detail/EntityDatabaseAccessExternal.hpp>
 
-#define USAGI_SVC_Service_master_clock          Service_master_clock_default
-#define USAGI_SVC_Service_graphics_gdi          Service_graphics_gdi
-#define USAGI_SVC_Service_stat                  Service_stat
-#define USAGI_SVC_Service_content_update_flag   Service_content_update_flag
+#define Service_master_clock___          Service_master_clock_default
+#define Service_graphics_gdi___          Service_graphics_gdi
+#define Service_stat___                  Service_stat
+#define Service_content_update_flag___   Service_content_update_flag
 
 #include "System_fireworks_spawn.hpp"
 #include "System_fireworks_explode.hpp"

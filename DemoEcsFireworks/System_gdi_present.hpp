@@ -1,6 +1,7 @@
 ﻿#pragma once
 
-#include "Runtime.hpp"
+#include <Usagi/Runtime/Service.hpp>
+
 #include "Service_graphics_gdi.hpp"
 
 namespace usagi

@@ -23,9 +23,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Runtime.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Service_content_update_flag.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

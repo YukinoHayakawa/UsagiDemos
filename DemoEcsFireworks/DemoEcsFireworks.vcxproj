@@ -98,7 +98,6 @@
     <ClCompile Include="Service_graphics_gdi.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Runtime.hpp" />
     <ClInclude Include="Service_content_update_flag.hpp" />
     <ClInclude Include="Service_graphics_gdi.hpp" />
     <ClInclude Include="Service_master_clock.hpp" />

@@ -2,11 +2,11 @@
 
 #include <random>
 
+#include <Usagi/Runtime/Service.hpp>
 #include <Usagi/Module/Common/Time/Clock.hpp>
 
 #include "Type.hpp"
 #include "Service_master_clock.hpp"
-#include "Runtime.hpp"
 
 struct System_fireworks_spawn
 {

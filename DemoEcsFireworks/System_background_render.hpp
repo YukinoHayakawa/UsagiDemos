@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include "Type.hpp"
-#include "Runtime.hpp"
+#include <Usagi/Runtime/Service.hpp>
+
 #include "Service_graphics_gdi.hpp"
 
 struct System_background_render

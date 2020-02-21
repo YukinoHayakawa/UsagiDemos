@@ -2,8 +2,9 @@
 
 #include <execution>
 
+#include <Usagi/Runtime/Service.hpp>
+
 #include "Type.hpp"
-#include "Runtime.hpp"
 #include "Service_graphics_gdi.hpp"
 
 struct System_sprite_render
