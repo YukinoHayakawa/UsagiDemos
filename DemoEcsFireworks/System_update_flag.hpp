@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include <Usagi/Experimental/v2/Game/Entity/Archetype.hpp>
-#include <Usagi/Experimental/v2/Game/Database/EntityDatabase.hpp>
+#include <Usagi/Game/Entity/Archetype.hpp>
+#include <Usagi/Game/Database/EntityDatabase.hpp>
 #include "Runtime.hpp"
 #include "Service_content_update_flag.hpp"
 

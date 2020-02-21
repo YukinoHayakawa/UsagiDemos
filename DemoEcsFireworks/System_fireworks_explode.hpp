@@ -3,7 +3,7 @@
 #include <random>
 #include <execution>
 
-#include <Usagi/Math/Constant.hpp>
+#include <Usagi/Module/Common/Math/Constant.hpp>
 
 #include "Type.hpp"
 

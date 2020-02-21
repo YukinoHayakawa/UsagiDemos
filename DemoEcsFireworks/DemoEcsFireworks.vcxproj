@@ -12,8 +12,8 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{37003d09-57f7-4b2c-b391-119078944831}</ProjectGuid>
-    <RootNamespace>EcsFireworksDemo</RootNamespace>
+    <ProjectGuid>{e5156a69-e62c-48b3-bcaf-28c58a8f4d0a}</ProjectGuid>
+    <RootNamespace>DemoEcsFireworks</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -44,11 +44,13 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalOptions>/Qvec-report:2 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
     </Link>
+    <Manifest>
+      <EnableDpiAwareness>PerMonitorHighDPIAware</EnableDpiAwareness>
+    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -82,8 +84,8 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -93,35 +95,40 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="PerfTest.cpp" />
     <ClCompile Include="Service_graphics_gdi.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Extensions\Usagi\Extensions\RtWin32\RtWin32.vcxproj">
-      <Project>{fbe0a064-8702-44a3-a308-167f78281dc7}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Usagi\Usagi\Usagi.vcxproj">
-      <Project>{4250e1c0-ea0b-4575-bc04-11e7f83c2ed4}</Project>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Service_graphics_gdi.hpp" />
     <ClInclude Include="Runtime.hpp" />
+    <ClInclude Include="Service_content_update_flag.hpp" />
+    <ClInclude Include="Service_graphics_gdi.hpp" />
     <ClInclude Include="Service_master_clock.hpp" />
     <ClInclude Include="Service_stat.hpp" />
     <ClInclude Include="System_background_render.hpp" />
     <ClInclude Include="System_draw_stat.hpp" />
-    <ClInclude Include="System_gdi_present.hpp" />
-    <ClInclude Include="Service_content_update_flag.hpp" />
-    <ClInclude Include="System_star_render.hpp" />
     <ClInclude Include="System_fireworks_explode.hpp" />
     <ClInclude Include="System_fireworks_spawn.hpp" />
+    <ClInclude Include="System_gdi_present.hpp" />
     <ClInclude Include="System_physics.hpp" />
     <ClInclude Include="System_remove_out_of_bound.hpp" />
     <ClInclude Include="System_spark_fade.hpp" />
     <ClInclude Include="System_sprite_render.hpp" />
+    <ClInclude Include="System_star_render.hpp" />
     <ClInclude Include="System_update_flag.hpp" />
     <ClInclude Include="Type.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Library\Usagi\Usagi.vcxproj">
+      <Project>{f9061c06-bce6-416b-9aeb-31351810b7ba}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Module\Usagi\Module\Common\Math\Math.vcxproj">
+      <Project>{d4e79012-d153-40c0-b62d-fc9b31495442}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Module\Usagi\Module\Common\Time\Time.vcxproj">
+      <Project>{61c2c8d3-d6d1-4bea-b122-43142579ba35}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Module\Usagi\Module\Platform\WinCommon\WinCommon.vcxproj">
+      <Project>{cd325def-b361-4cc5-87ac-bf51588dbf2d}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

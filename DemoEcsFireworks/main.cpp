@@ -6,8 +6,12 @@
 
 // #define NDEBUG
 
-#include <Usagi/Utility/Utf8Main.hpp>
-#include <Usagi/Experimental/v2/Game/_detail/EntityDatabaseAccessExternal.hpp>
+#include <Usagi/Game/_detail/EntityDatabaseAccessExternal.hpp>
+
+#define USAGI_SVC_Service_master_clock          Service_master_clock_default
+#define USAGI_SVC_Service_graphics_gdi          Service_graphics_gdi
+#define USAGI_SVC_Service_stat                  Service_stat
+#define USAGI_SVC_Service_content_update_flag   Service_content_update_flag
 
 #include "System_fireworks_spawn.hpp"
 #include "System_fireworks_explode.hpp"
@@ -28,7 +32,7 @@
     >(&db)) \
 /**/
 
-int usagi_main(const std::vector<std::string> &args)
+int main()
 {
     Database db;
 
@@ -49,7 +53,7 @@ int usagi_main(const std::vector<std::string> &args)
         : Service_master_clock_default
         , Service_graphics_gdi
         , Service_stat
-        // , Service_content_update_flag
+        , Service_content_update_flag
     {
     } rt;
 

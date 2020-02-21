@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include <Usagi/Core/Clock.hpp>
+#include <Usagi/Module/Common/Time/Clock.hpp>
 
 namespace usagi
 {

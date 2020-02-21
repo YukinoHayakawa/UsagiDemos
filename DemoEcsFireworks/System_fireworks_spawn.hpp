@@ -2,7 +2,7 @@
 
 #include <random>
 
-#include <Usagi/Core/Clock.hpp>
+#include <Usagi/Module/Common/Time/Clock.hpp>
 
 #include "Type.hpp"
 #include "Service_master_clock.hpp"

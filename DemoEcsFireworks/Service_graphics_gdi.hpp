@@ -3,7 +3,7 @@
 #include <memory>
 #include <algorithm>
 
-#include <Usagi/Extensions/RtWin32/Win32.hpp>
+#include <Usagi/Module/Platform/WinCommon/Win32.hpp>
 
 namespace usagi
 {

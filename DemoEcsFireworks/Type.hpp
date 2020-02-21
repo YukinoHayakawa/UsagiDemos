@@ -1,8 +1,8 @@
 ﻿#pragma once
 
-#include <Usagi/Math/Matrix.hpp>
-#include <Usagi/Experimental/v2/Game/Entity/Archetype.hpp>
-#include <Usagi/Experimental/v2/Game/Database/EntityDatabase.hpp>
+#include <Usagi/Module/Common/Math/Matrix.hpp>
+#include <Usagi/Game/Entity/Archetype.hpp>
+#include <Usagi/Game/Database/EntityDatabase.hpp>
 
 using namespace usagi;
 

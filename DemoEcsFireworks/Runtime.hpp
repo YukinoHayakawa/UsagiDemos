@@ -2,8 +2,8 @@
 
 #include <type_traits>
 
-#define USAGI_SERVICE(rt, svc_type) \
-    static_cast<svc_type::ServiceType &>(rt.svc_type::get_service())
+#define USAGI_SERVICE(rt, svc) \
+    static_cast<USAGI_SVC_##svc&>(rt).get_service()
 
 #define USAGI_OPT_SERVICE(rt, svc_type, svc_var, task) \
     do { \
