@@ -8,12 +8,15 @@
 using namespace usagi;
 using timer = std::chrono::high_resolution_clock;
 
-int main(int argc, char *argv[])
+void mem_map_copy(
+    const std::u8string_view src, 
+    const std::u8string_view dst, 
+    bool blocking)
 {
     AssetManager am;
     am.add_source(std::make_unique<AssetSourceFilesystemDirectory>("."));
 
-    std::shared_ptr<MemoryRegion> src;
+    std::shared_ptr<MemoryRegion> src_region;
 
     const auto start = timer::now();
 
@@ -21,14 +24,17 @@ int main(int argc, char *argv[])
     while(true)
     {
         auto result = am.request_raw_asset(
-            u8"./input.png",
+            src,
             AssetPriority::NORMAL,
-            ASSET_LOAD_IF_MISSING
+            AssetRequestOption(
+                ASSET_LOAD_IF_MISSING |
+                (blocking ? ASSET_BLOCKING_LOAD : 0)
+            )
         );
         if(result)
         {
             printf("Loaded.\n");
-            src = result.value();
+            src_region = result.value();
             break;
         }
 
@@ -44,16 +50,22 @@ int main(int argc, char *argv[])
 
     MemoryMappedFile output {
         RegularFile {
-            u8"./output.png",
+            std::u8string(dst),
             FileOpenMode(OPEN_READ | OPEN_WRITE),
             FileOpenOptions(OPTION_CREATE_IF_MISSING)
         },
         MAPPING_WRITE,
-        src->length
+        src_region->length
     };
 
     printf("Copying...\n");
-    memcpy(output.base_view(), src->base_address, src->length);
-    output.flush(0, src->length);
+    memcpy(output.base_view(), src_region->base_address, src_region->length);
+    output.flush(0, src_region->length);
     printf("Copied.\n");
+}
+
+int main(int argc, char *argv[])
+{
+    mem_map_copy(u8"input.png", u8"output_nonblocking.png", false);
+    mem_map_copy(u8"input.png", u8"output_blocking.png", true);
 }
