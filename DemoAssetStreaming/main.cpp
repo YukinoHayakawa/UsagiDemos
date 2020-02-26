@@ -1,9 +1,12 @@
 ﻿#include <cstdio>
+#include <iostream>
+#include <chrono>
 
-#include <Usagi/Module/Service/ServiceAsset/AssetManager.hpp>
-#include <Usagi/Module/Service/ServiceAsset/AssetSourceFilesystemDirectory.hpp>
+#include <Usagi/Module/Service/Asset/AssetManager.hpp>
+#include <Usagi/Module/Service/Asset/AssetSourceFilesystemDirectory.hpp>
 
 using namespace usagi;
+using timer = std::chrono::high_resolution_clock;
 
 int main(int argc, char *argv[])
 {
@@ -11,6 +14,9 @@ int main(int argc, char *argv[])
     am.add_source(std::make_unique<AssetSourceFilesystemDirectory>("."));
 
     std::shared_ptr<MemoryRegion> src;
+
+    const auto start = timer::now();
+
     // Fetch the file
     while(true)
     {
@@ -23,21 +29,26 @@ int main(int argc, char *argv[])
         {
             printf("Loaded.\n");
             src = result.value();
-            break;;
+            break;
         }
-        else
-        {
-            printf("Loading...\n");
-        }
+
+        auto end = timer::now();
+        const auto elapsed = std::chrono::duration_cast<
+            std::chrono::microseconds
+        >(end - start).count();
+
+        printf("Loading... %lld us\n", elapsed);
     }
+
+    using namespace platform::file;
 
     MemoryMappedFile output {
         RegularFile {
             u8"./output.png",
-            platform::file::FileOpenMode::READ_WRITE,
-            platform::file::FileOpenOptions::CREATE_IF_MISSING
+            FileOpenMode(OPEN_READ | OPEN_WRITE),
+            FileOpenOptions(OPTION_CREATE_IF_MISSING)
         },
-        platform::memory::MemoryMappingMode::READ_WRITE,
+        MAPPING_WRITE,
         src->length
     };
 
