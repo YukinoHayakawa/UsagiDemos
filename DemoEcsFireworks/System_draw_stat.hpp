@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include <Usagi/Game/_detail/ComponentFilter.hpp>
+#include <Usagi/Game/detail/ComponentFilter.hpp>
 #include <Usagi/Runtime/Service.hpp>
 
 #include "Service_master_clock.hpp"

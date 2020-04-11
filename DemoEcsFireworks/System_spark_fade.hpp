@@ -12,6 +12,8 @@ struct System_spark_fade
         ComponentSpark,
         ComponentColor
     >;
+    // required by entity.destroy()
+    using WriteAllAccess = void;
 
     template <typename RuntimeServices, typename EntityDatabaseAccess>
     void update(RuntimeServices &&rt, EntityDatabaseAccess &&db)
@@ -20,7 +22,9 @@ struct System_spark_fade
             USAGI_SERVICE(rt, Service_master_clock).elapsed()
         );
 
+
         std::for_each(std::execution::par, db.begin(), db.end(), [&](auto &&p) {
+            db.page_view(p, ComponentFilter<>());
             for(auto &&e : db.page_view(p, WriteAccess()))
             {
                 auto &f_s = USAGI_COMPONENT(e, ComponentSpark);

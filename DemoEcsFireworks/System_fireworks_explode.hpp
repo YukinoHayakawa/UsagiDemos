@@ -42,8 +42,15 @@ struct System_fireworks_explode
         std::for_each(std::execution::par, db.begin(), db.end(), [&](auto &&p) mutable {
             static thread_local ArchetypeSpark spark;
 
-            for(auto &&e : db.page_view(p, Filter()))
+            auto range = db.page_view(p, Filter());
+            auto begin = range.begin();
+            auto end = range.end();
+
+            for(; begin != end; ++begin)
             {
+                assert(end == range.end());
+
+                auto e = *begin;
                 auto &f_f = USAGI_COMPONENT(e, ComponentFireworks);
                 auto &f_phy = USAGI_COMPONENT(e, ComponentPhysics);
                 auto &f_c = USAGI_COMPONENT(e, ComponentColor);
@@ -54,7 +61,7 @@ struct System_fireworks_explode
                     for(auto i = 0; i < f_f.num_sparks; ++i)
                     {
                         spark.val<ComponentSpark>().fade_time_total =
-                            spark.val<ComponentSpark>().fade_time_left =
+                        spark.val<ComponentSpark>().fade_time_left =
                             dis_ft(gen);
                         spark.val<ComponentSpark>().base_color = f_c.rgb;
 

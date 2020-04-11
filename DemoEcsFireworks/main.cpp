@@ -4,9 +4,9 @@
 // some distance and explode. The sparks fly away from the explosion center
 // and gradually disappear.
 
-// #define NDEBUG
+#define NDEBUG
 
-#include <Usagi/Game/_detail/EntityDatabaseAccessExternal.hpp>
+#include <Usagi/Game/detail/EntityDatabaseAccessExternal.hpp>
 
 #define Service_master_clock___          Service_master_clock_default
 #define Service_graphics_gdi___          Service_graphics_gdi

@@ -13,7 +13,7 @@ struct System_fireworks_spawn
     using WriteAccess = ArchetypeFireworks::ComponentFilterT;
 
     std::mt19937 gen { std::random_device()() };
-    std::uniform_real_distribution<float> dis { .0005f, .001f };
+    std::uniform_real_distribution<float> dis { .05f, .1f };
     std::uniform_real_distribution<float> dis_x { 100, 1820 };
     std::uniform_real_distribution<float> dis_v { 250, 300 };
     std::uniform_real_distribution<float> dis_color { 0, 255 };
@@ -30,7 +30,7 @@ struct System_fireworks_spawn
 
         while(time_pool > 0.f)
         {
-            fireworks.val<ComponentFireworks>().num_sparks = 500;
+            fireworks.val<ComponentFireworks>().num_sparks = 25;
             fireworks.val<ComponentFireworks>().time_to_explode = 2;
             fireworks.val<ComponentPosition>().position = { dis_x(gen), 0 };
             fireworks.val<ComponentPhysics>().velocity = { 0, dis_v(gen) };
