@@ -15,6 +15,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hwnd, &ps);
+            (void)hdc;
             EndPaint(hwnd, &ps);
             return 0;
         }

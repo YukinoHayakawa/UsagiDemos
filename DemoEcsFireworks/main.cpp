@@ -5,13 +5,14 @@
 // and gradually disappear.
 
 #define NDEBUG
+#define EIGEN_HAS_STD_RESULT_OF 0
 
 #include <Usagi/Game/detail/EntityDatabaseAccessExternal.hpp>
 
-#define Service_master_clock___          Service_master_clock_default
-#define Service_graphics_gdi___          Service_graphics_gdi
-#define Service_stat___                  Service_stat
-#define Service_content_update_flag___   Service_content_update_flag
+// #define Service_master_clock___          Service_master_clock_default
+// #define Service_graphics_gdi___          Service_graphics_gdi
+// #define Service_stat___                  Service_stat
+// #define Service_content_update_flag___   Service_content_update_flag
 
 #include "System_fireworks_spawn.hpp"
 #include "System_fireworks_explode.hpp"

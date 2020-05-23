@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <execution>
+#include <algorithm>
 
 #include <Usagi/Runtime/Service.hpp>
 

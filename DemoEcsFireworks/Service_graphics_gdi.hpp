@@ -64,7 +64,7 @@ struct GdiGraphics
         WNDCLASS wc = { };
 
         wc.lpfnWndProc   = WindowProc;
-        wc.hInstance     = GetModuleHandle(NULL);
+        wc.hInstance     = GetModuleHandle(nullptr);
         wc.lpszClassName = CLASS_NAME;
 
         RegisterClass(&wc);
@@ -89,10 +89,10 @@ struct GdiGraphics
             rect.right - rect.left,
             rect.bottom - rect.top,
 
-            NULL,       // Parent window
-            NULL,       // Menu
+            nullptr,       // Parent window
+            nullptr,       // Menu
             wc.hInstance,  // Instance handle
-            NULL        // Additional application data
+            nullptr        // Additional application data
         );
 
 
@@ -112,7 +112,7 @@ struct GdiGraphics
 
         bitmap_handle = CreateDIBSection(
             cdc, &bi, DIB_RGB_COLORS,
-            (LPVOID*)&bitmap.buffer, NULL, 0);
+            reinterpret_cast<LPVOID*>(&bitmap.buffer), nullptr, 0);
 
         ReleaseDC(hwnd, hdc);
 

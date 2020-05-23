@@ -23,6 +23,7 @@ struct System_sprite_render
     std::size_t update(RuntimeServices &&rt, EntityDatabaseAccess &&db)
     {
         HDC &cdc = USAGI_SERVICE(rt, Service_graphics_gdi).cdc;
+        (void)cdc;
         Bitmap &bitmap = USAGI_SERVICE(rt, Service_graphics_gdi).bitmap;
 
         std::atomic<std::size_t> count = 0;
@@ -34,13 +35,13 @@ struct System_sprite_render
                 auto &color = USAGI_COMPONENT(e, ComponentColor);
 
                 const auto rgb = RGB(
-                    (int)color.rgb.x(),
-                    (int)color.rgb.y(),
-                    (int)color.rgb.z()
+                    static_cast<int>(color.rgb.x()),
+                    static_cast<int>(color.rgb.y()),
+                    static_cast<int>(color.rgb.z())
                 );
                 bitmap.fill_rect(
-                    (int)pos.position.x(),
-                    (int)pos.position.y(),
+                    static_cast<int>(pos.position.x()),
+                    static_cast<int>(pos.position.y()),
                     sprite.size,
                     sprite.size,
                     rgb
