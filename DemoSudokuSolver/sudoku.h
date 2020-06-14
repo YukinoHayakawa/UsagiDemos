@@ -1,15 +1,13 @@
-﻿#include <bitset>
+﻿#pragma once
+
+#include <bitset>
 #include <cassert>
 #include <fstream>
-#include <deque>
+#include <vector>
+#include <algorithm>
 #include <fmt/ostream.h>
 
-bool gDebug = false;
-
-void indent(int s)
-{
-    for(int i = 0; i < s; ++i) putchar(' ');
-}
+inline bool gDebug = false;
 
 struct Position
 {
@@ -32,7 +30,7 @@ struct Position
     }
 };
 
-using Queue = std::deque<Position>;
+using Queue = std::vector<Position>;
 
 struct SudokuBlock
 {
@@ -69,6 +67,14 @@ struct SudokuInstance
         );
     }
 
+    bool filled(const Position &p) const
+    {
+        return blocks[p.row_b][p.col_b].filled(
+            p.row_c,
+            p.col_c
+        );
+    }
+
     std::bitset<11> candidates(const Position &pos) const
     {
         // the numbers are all available initially
@@ -93,10 +99,50 @@ struct SudokuInstance
         return ret;
     }
 
+    bool lookahead(const Position &pos) const
+    {
+        // check within the block
+        for(int i = 0; i < 3; ++i)
+            for(int j = 0; j < 3; ++j)
+            {
+                auto p = pos;
+                p.row_c = i;
+                p.col_c = j;
+                if(!filled(p) && candidates(p) == 0) return false;
+            }
+
+        // check the same row
+        for(int i = 0; i < 3; ++i) // col of blocks
+            for(int j = 0; j < 3; ++j) // col inside block
+            {
+                auto p = pos;
+                p.col_b = i;
+                p.col_c = j;
+                if(!filled(p) && candidates(p) == 0) return false;
+            }
+
+        // check the same column
+        for(int i = 0; i < 3; ++i) // row of blocks
+            for(int j = 0; j < 3; ++j) // row inside block
+            {
+                auto p = pos;
+                p.row_b = i;
+                p.row_c = j;
+                if(!filled(p) && candidates(p) == 0) return false;
+            }
+
+        return true;
+    }
+
     bool solve(Queue &queue, std::size_t index = 0)
     {
         // base case: all the numbers are filled, a solution was found.
         if(index == queue.size()) return true;
+
+        std::sort(queue.begin() + index, queue.end(), [this](auto &&lhs, auto &&rhs)
+        {
+            return candidates(lhs).count() < candidates(rhs).count();
+        });
 
         const auto &pos = queue[index];
         auto &block = blocks[pos.row_b][pos.col_b];
@@ -113,6 +159,8 @@ struct SudokuInstance
             // attempt a candidate
             block.fill(pos.row_c, pos.col_c, i);
             ++steps;
+
+            if(!lookahead(pos)) continue;
 
             if(gDebug)
             {
@@ -179,32 +227,41 @@ struct SudokuInstance
         }
         return v;
     }
-};
 
-int main(int argc, char *argv[])
-{
-    if(argc == 3) gDebug = true;
-
-    SudokuInstance instance;
     Queue unfilled;
-    std::ifstream input { argv[1] };
 
-    int num, row = 0, col = 0;
-    while(input >> num)
+    void read_from_file(const std::string &filename)
     {
-        Position p(row, col);
-        if(num == 0)
+        std::ifstream input { filename };
+
+        int num, row = 0, col = 0;
+        while(input >> num)
         {
-            unfilled.push_back(p);
-        }
-        instance.fill(p, num);
-        ++col;
-        if(col == 9)
-        {
-            ++row;
-            col = 0;
+            Position p(row, col);
+            if(num == 0)
+            {
+                unfilled.push_back(p);
+            }
+            fill(p, num);
+            ++col;
+            if(col == 9)
+            {
+                ++row;
+                col = 0;
+            }
         }
     }
+};
+
+
+/*
+int main(int argc, char *argv[])
+{
+    if(argc == 3)
+        gDebug = true;
+
+    SudokuInstance instance;
+
 
     fmt::print("Trying to solve the puzzle:\n\n");
 
@@ -223,5 +280,11 @@ int main(int argc, char *argv[])
     instance.print();
     (void)instance.validate();
 
+
+    // todo: probably all the candidate of all cells should be considered
+    // together and sorted in the order of max size of subtree (most trimmed
+    // domain)
     return 0;
 }
+*/
+
