@@ -35,12 +35,28 @@ using Queue = std::vector<Position>;
 struct SudokuInstance
 {
     // SudokuBlock blocks[3][3];
-    int cells[9][9];
+    int cells[9][9] { };
+    bool locked[9][9] { };
     int steps = 0;
 
     void fill(const Position &p, int num)
     {
         cells[p.row][p.col] = num;
+    }
+
+    void set_locked(const Position &p, bool locked_)
+    {
+        locked[p.row][p.col] = locked_;
+    }
+
+    bool is_locked(const Position &p)
+    {
+        return locked[p.row][p.col];
+    }
+
+    void toggle_locked(const Position & p)
+    {
+        locked[p.row][p.col] = !locked[p.row][p.col];
     }
 
     bool filled(const Position &p) const
@@ -112,7 +128,38 @@ struct SudokuInstance
     }
     */
 
-    bool solve__fewest_candidate_first(std::size_t index = 0)
+    void reset()
+    {
+        for(int i = 0; i < 9; ++i)
+        {
+            for(int j = 0; j < 9; ++j)
+            {
+                if(!locked[i][j])
+                    cells[i][j] = 0;
+            }
+        }
+    }
+
+    bool solve__fewest_candidate_first()
+    {
+        steps = 0;
+        Queue unfilled;
+
+        for(int i = 0; i < 9; ++i)
+        {
+            for(int j = 0; j < 9; ++j)
+            {
+                if(cells[i][j] == 0)
+                    unfilled.push_back({ i, j });
+            }
+        }
+
+        const auto ret = solve__fewest_candidate_first__helper(unfilled);
+        (void)validate();
+        return ret;
+    }
+
+    bool solve__fewest_candidate_first__helper(Queue &unfilled, std::size_t index = 0)
     {
         // base case: all the numbers are filled, a solution was found.
         if(index == unfilled.size()) return true;
@@ -150,7 +197,7 @@ struct SudokuInstance
 
             // so we are temporarily done with the current cell, descend one
             // level down the search tree by attempting the next empty cell
-            const auto solved = solve__fewest_candidate_first(index + 1);
+            const auto solved = solve__fewest_candidate_first__helper(unfilled, index + 1);
             // the subtree is dealt with
             if(solved) return true;
             // otherwise we try the next number
@@ -183,6 +230,67 @@ struct SudokuInstance
         }
     }
 
+    void save(const std::string &filename) const
+    {
+        std::ofstream out { filename };
+
+        // write numbers
+        for(int i = 0; i < 9; ++i)
+        {
+            for(int j = 0; j < 9; ++j)
+            {
+                fmt::print(out, "{} ", cells[i][j]);
+                if(j % 3 == 2) out.put(' ');
+            }
+            if(i % 3 == 2) out.put('\n');
+            out.put('\n');
+        }
+        out.put('\n');
+        // write locks
+        for(int i = 0; i < 9; ++i)
+        {
+            for(int j = 0; j < 9; ++j)
+            {
+                fmt::print(out, "{} ", (int)locked[i][j]);
+                if(j % 3 == 2) out.put(' ');
+            }
+            if(i % 3 == 2) out.put('\n');
+            out.put('\n');
+        }
+    }
+
+    bool validate(const Position &pos) const
+    {
+        // the numbers are all available initially
+        std::bitset<11> ret = 0b111'111'111'0;
+
+        // check within the block
+        const auto block_pos = pos.block_pos();
+
+        const auto ii = block_pos.row * 3;
+        for(int i = ii; i < ii + 3; ++i)
+        {
+            const auto jj = block_pos.col * 3;
+            for(int j = jj; j < jj + 3; ++j)
+                ret[cells[i][j]] = false;
+        }
+        if(ret != 0) return false;
+
+        ret = 0b111'111'111'0;
+        // check the same row
+        for(int i = 0; i < 9; ++i)
+            ret[cells[pos.row][i]] = false;
+        if(ret != 0) return false;
+
+        ret = 0b111'111'111'0;
+        // check the same column
+        for(int i = 0; i < 9; ++i)
+            ret[cells[i][pos.col]] = false;
+        if(ret != 0) return false;
+
+        return true;
+    }
+
     bool validate() const
     {
         bool v = true;
@@ -191,7 +299,7 @@ struct SudokuInstance
             for(int j = 0; j < 9; ++j)
             {
                 const Position pos(i, j);
-                if(candidates(pos) != 0)
+                if(!validate(pos))
                 {
                     fmt::print("Constraint was not satisfied at: ");
                     pos.print();
@@ -203,21 +311,15 @@ struct SudokuInstance
         return v;
     }
 
-    Queue unfilled;
-
     void read_from_file(const std::string &filename)
     {
-        steps = 0;
         std::ifstream input { filename };
 
         int num, row = 0, col = 0;
+        // read numbers
         while(input >> num)
         {
             Position p(row, col);
-            if(num == 0)
-            {
-                unfilled.push_back(p);
-            }
             fill(p, num);
             ++col;
             if(col == 9)
@@ -225,6 +327,21 @@ struct SudokuInstance
                 ++row;
                 col = 0;
             }
+            if(row == 9) break;
+        }
+        row = 0, col = 0;
+        // read locks
+        while(input >> num)
+        {
+            Position p(row, col);
+            if(num != 0) set_locked({ row, col }, true);
+            ++col;
+            if(col == 9)
+            {
+                ++row;
+                col = 0;
+            }
+            if(row == 9) break;
         }
     }
 };

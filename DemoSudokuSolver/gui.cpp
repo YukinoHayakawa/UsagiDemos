@@ -32,34 +32,107 @@ static void glfw_error_callback(int error, const char* description)
 }
 
 SudokuInstance gSudoku;
+std::string gFilename = "session.txt";
 
 void sudoku_window()
 {
-    ImGui::Begin("Sudoku");
+    ImGui::SetNextWindowPos({ 16, 16 });
+    ImGui::Begin("Sudoku", nullptr,
+        ImGuiWindowFlags_NoTitleBar |
+        ImGuiWindowFlags_AlwaysAutoResize |
+        ImGuiWindowFlags_NoBackground |
+        ImGuiWindowFlags_NoMove |
+        0
+    );
+
     ImGui::SetWindowFontScale(5);
     ImGui::PushItemWidth(32);
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, { 4, 4 });
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1);
     for(int i = 0; i < 9; ++i)
     {
         for(int j = 0; j < 9; ++j)
         {
+            ImGui::PushStyleVar(
+                ImGuiStyleVar_ItemSpacing,
+                { j % 3 == 2 ? 16.f : 4.f, i % 3 == 2 ? 16.f : 4.f }
+            );
+
             const Position pos(i, j);
             auto &num = gSudoku.cells[i][j];
-            auto candidates = gSudoku.candidates(pos);
-            ImGui::PushStyleColor(ImGuiCol_Button, { 0, 0, candidates.count() * 0.1f, 1 });
-            if(ImGui::Button(fmt::format("{}", num).c_str(), { 88 , 88 }))
+            const auto candidates = gSudoku.candidates(pos);
+            const auto locked = gSudoku.is_locked(pos);
+            if(locked)
             {
-
+                ImGui::PushStyleColor(
+                    ImGuiCol_Button,
+                    { 0, 0, 0, 0 }
+                );
+                ImGui::PushStyleColor(
+                    ImGuiCol_Border,
+                    { 0, 0, 0, 0 }
+                );
             }
-            ImGui::PopStyleColor(1);
+            else // color according to the number of candidates
+            {
+                const auto num_candidates = candidates.count();
+                if(num_candidates == 0 && num == 0)
+                {
+                    ImGui::PushStyleColor(
+                        ImGuiCol_Button,
+                        { 1.f, 0.f, 0.f, 0.5f }
+                    );
+                }
+                else
+                {
+                    const auto col = num_candidates * 0.1f;
+                    ImGui::PushStyleColor(
+                        ImGuiCol_Button,
+                        { col, col, col, 0.5f }
+                    );
+                }
+                ImGui::PushStyleColor(
+                    ImGuiCol_Border,
+                    { 1.f, 1.f, 1.f, 0.5f }
+                );
+            }
+
+            const auto btn_name = num
+                ? fmt::format("{}##{}-{}", num, i, j)
+                : fmt::format("##{}-{}", i, j);
+            const auto popup_name = fmt::format("cell_fill_popup##{}-{}", i, j);
+
+            if(ImGui::Button(btn_name.c_str(), { 88 , 88 }) && !locked)
+                ImGui::OpenPopup(popup_name.c_str());
+            if(ImGui::IsItemClicked(1) && !locked)
+                gSudoku.fill(pos, 0);
+            if(ImGui::IsItemClicked(2))
+                gSudoku.toggle_locked(pos);
+
+            if(ImGui::BeginPopup(popup_name.c_str()))
+            {
+                for(int c = 0; c < 10; ++c)
+                {
+                    if(!candidates[c]) continue;
+                    if(ImGui::Selectable(fmt::format("{}", c).c_str()))
+                    {
+                        gSudoku.fill(pos, c);
+                    }
+                }
+                ImGui::EndPopup();
+            }
+
+            ImGui::PopStyleColor(2);
             if(j != 8) ImGui::SameLine();
+            ImGui::PopStyleVar(1);
             // if(j % 3 == 2) putchar(' ');
 
         // if(i % 3 == 2) putchar('\n');
         // putchar('\n');
         }
     }
+    ImGui::PopStyleVar(2);
     ImGui::PopItemWidth();
-    ImGui::GetFont()->Scale = 1;
 
     if(ImGui::Button("Solve"))
     {
@@ -76,19 +149,29 @@ void sudoku_window()
             gSudoku.print();
         }
     }
+    ImGui::SameLine();
+    if(ImGui::Button("Reset"))
+        gSudoku.reset();
+    ImGui::SameLine();
+    if(ImGui::Button("Save"))
+        gSudoku.save(gFilename);
+
     ImGui::End();
 }
 
 int main(int argc, char *argv[])
 {
     if(argc > 1)
-        gSudoku.read_from_file(argv[1]);
+    {
+        gFilename = argv[1];
+    }
+    gSudoku.read_from_file(gFilename);
 
     // Setup window
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit())
         return 1;
-    GLFWwindow* window = glfwCreateWindow(1280, 720, "Dear ImGui GLFW+OpenGL2 example", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(900, 990, "Sudoku", NULL, NULL);
     if (window == NULL)
         return 1;
     glfwMakeContextCurrent(window);
@@ -102,8 +185,8 @@ int main(int argc, char *argv[])
     //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
     // Setup Dear ImGui style
-    //ImGui::StyleColorsDark();
-    ImGui::StyleColorsClassic();
+    ImGui::StyleColorsDark();
+    // ImGui::StyleColorsClassic();
 
     // Setup Platform/Renderer bindings
     ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -127,7 +210,8 @@ int main(int argc, char *argv[])
     // Our state
     bool show_demo_window = true;
     bool show_another_window = false;
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    ImVec4 clear_color = ImVec4(0, 0, 0, 1.00f);
+
 
     // Main loop
     while (!glfwWindowShouldClose(window))
@@ -145,7 +229,7 @@ int main(int argc, char *argv[])
         ImGui::NewFrame();
 
         sudoku_window();
-        ImGui::ShowDemoWindow();
+        // ImGui::ShowDemoWindow();
 
         // Rendering
         ImGui::Render();
