@@ -36,15 +36,14 @@ SudokuInstance gSudoku;
 void sudoku_window()
 {
     ImGui::Begin("Sudoku");
-    // ImGui::PushStyleVar()
-    ImGui::GetFont()->Scale = 5;
+    ImGui::SetWindowFontScale(5);
     ImGui::PushItemWidth(32);
     for(int i = 0; i < 9; ++i)
     {
         for(int j = 0; j < 9; ++j)
         {
             const Position pos(i, j);
-            auto &num = gSudoku.blocks[pos.row_b][pos.col_b].block[pos.row_c][pos.col_c];
+            auto &num = gSudoku.cells[i][j];
             auto candidates = gSudoku.candidates(pos);
             ImGui::PushStyleColor(ImGuiCol_Button, { 0, 0, candidates.count() * 0.1f, 1 });
             if(ImGui::Button(fmt::format("{}", num).c_str(), { 88 , 88 }))
@@ -61,6 +60,22 @@ void sudoku_window()
     }
     ImGui::PopItemWidth();
     ImGui::GetFont()->Scale = 1;
+
+    if(ImGui::Button("Solve"))
+    {
+        fmt::print("Trying to solve the puzzle:\n\n");
+        gSudoku.print();
+        const auto solved = gSudoku.solve__fewest_candidate_first();
+        if(!solved)
+        {
+            fmt::print("No solution could be found.\n");
+        }
+        else
+        {
+            fmt::print("Got a solution in {} steps:\n\n", gSudoku.steps);
+            gSudoku.print();
+        }
+    }
     ImGui::End();
 }
 
