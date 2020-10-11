@@ -4,10 +4,15 @@
 // some distance and explode. The sparks fly away from the explosion center
 // and gradually disappear.
 
-#define NDEBUG
-#define EIGEN_HAS_STD_RESULT_OF 0
+#ifdef _DEBUG
+#pragma comment(lib, "fmtd.lib")
+#else
+#pragma comment(lib, "fmt.lib")
+#endif
 
-#include <Usagi/Game/detail/EntityDatabaseAccessExternal.hpp>
+#define NDEBUG
+
+#include <Usagi/Entity/detail/EntityDatabaseAccessExternal.hpp>
 
 // #define Service_master_clock___          Service_master_clock_default
 // #define Service_graphics_gdi___          Service_graphics_gdi
