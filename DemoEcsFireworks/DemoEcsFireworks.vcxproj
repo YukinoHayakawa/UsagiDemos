@@ -85,6 +85,9 @@
     <ProjectReference Include="..\..\Library\Usagi\Usagi.vcxproj">
       <Project>{f9061c06-bce6-416b-9aeb-31351810b7ba}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\Module\Usagi\Module\Common\Driver\Driver.vcxproj">
+      <Project>{3248deb0-ca9f-4e30-9396-e6c64de14af2}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\Module\Usagi\Module\Common\Math\Math.vcxproj">
       <Project>{d4e79012-d153-40c0-b62d-fc9b31495442}</Project>
     </ProjectReference>

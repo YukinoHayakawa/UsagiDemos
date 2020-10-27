@@ -30,18 +30,18 @@ struct System_fireworks_spawn
 
         while(time_pool > 0.f)
         {
-            fireworks.val<ComponentFireworks>().num_sparks = 500;
+            fireworks.val<ComponentFireworks>().num_sparks = 200;
             fireworks.val<ComponentFireworks>().time_to_explode = 2;
             fireworks.val<ComponentPosition>().position = { dis_x(gen), 0 };
             fireworks.val<ComponentPhysics>().velocity = { 0, dis_v(gen) };
             fireworks.val<ComponentPhysics>().acceleration = { 0, 0 };
-            fireworks.val<ComponentSprite>().size = 15;
+            fireworks.val<ComponentSprite>().size = 10;
             fireworks.val<ComponentColor>().rgb =
             { dis_color(gen), dis_color(gen), dis_color(gen) };
 
             const EntityId e = db.create(fireworks);
             (void)e;
-            time_pool -= 0.003f;
+            time_pool -= 0.03f;
         }
     }
 };

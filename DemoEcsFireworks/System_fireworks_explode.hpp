@@ -39,7 +39,8 @@ struct System_fireworks_explode
     template <typename RuntimeServices, typename EntityDatabaseAccess>
     void update(RuntimeServices &&rt, EntityDatabaseAccess &&db)
     {
-        std::for_each(std::execution::par, db.begin(), db.end(), [&](auto &&p) mutable {
+        // bug: do not execute parallelly. entity creation will not be handled correctly.
+        std::for_each(std::execution::seq, db.begin(), db.end(), [&](auto &&p) mutable {
             static thread_local ArchetypeSpark spark;
 
             auto range = db.page_view(p, Filter());
@@ -48,18 +49,20 @@ struct System_fireworks_explode
 
             for(; begin != end; ++begin)
             {
+                assert(begin != range.end());
                 assert(end == range.end());
 
                 auto e = *begin;
-                auto &f_f = USAGI_COMPONENT(e, ComponentFireworks);
-                auto &f_phy = USAGI_COMPONENT(e, ComponentPhysics);
-                auto &f_c = USAGI_COMPONENT(e, ComponentColor);
+                const auto num_sparks =
+                    USAGI_COMPONENT(e, ComponentFireworks).num_sparks;
 
                 // f_c.time_to_explode -= 1.f / 60;
-                if(f_phy.velocity.y() < 10)
+                if(USAGI_COMPONENT(e, ComponentPhysics).velocity.y() < 10)
                 {
-                    for(auto i = 0; i < f_f.num_sparks; ++i)
+                    for(auto i = 0; i < num_sparks; ++i)
                     {
+                        auto &f_c = USAGI_COMPONENT(e, ComponentColor);
+
                         spark.val<ComponentSpark>().fade_time_total =
                         spark.val<ComponentSpark>().fade_time_left =
                             dis_ft(gen);
@@ -77,6 +80,8 @@ struct System_fireworks_explode
                         spark.val<ComponentSprite>().size = 5;
 
                         db.create(spark);
+                        // db.create may invalidate the entity view
+                        e = *begin;
                     }
                     e.destroy();
                 }

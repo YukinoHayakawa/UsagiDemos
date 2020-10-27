@@ -3,6 +3,7 @@
 #include <Usagi/Module/Common/Math/Matrix.hpp>
 #include <Usagi/Entity/Archetype.hpp>
 #include <Usagi/Entity/EntityDatabase.hpp>
+#include <Usagi/Module/Common/Driver/ResumableApp.hpp>
 
 using namespace usagi;
 
@@ -66,14 +67,14 @@ using ArchetypeSpark = Archetype<
     ComponentColor
 >;
 
-// todo infer components from systems
-using Database = EntityDatabase<
-    ComponentFilter<
-        ComponentFireworks,
-        ComponentSpark,
-        ComponentPosition,
-        ComponentPhysics,
-        ComponentSprite,
-        ComponentColor
-    >
+using EnabledComponents = ComponentFilter<
+    ComponentFireworks,
+    ComponentSpark,
+    ComponentPosition,
+    ComponentPhysics,
+    ComponentSprite,
+    ComponentColor
 >;
+
+// todo infer components from systems
+using App = EnabledComponents::rebind<ResumableApp>;

@@ -10,7 +10,7 @@
 #pragma comment(lib, "fmt.lib")
 #endif
 
-#define NDEBUG
+// #define NDEBUG
 
 #include <Usagi/Entity/detail/EntityDatabaseAccessExternal.hpp>
 
@@ -33,14 +33,24 @@
 
 #define UPDATE_SYSTEM(sys) \
     sys.update(rt, EntityDatabaseAccessExternal< \
-        Database, \
+        App::DatabaseT, \
         ComponentAccessSystemAttribute<decltype(sys)> \
     >(&db)) \
 /**/
 
 int main()
 {
-    Database db;
+    App demo { "demo_fireworks" };
+    auto &db = demo.database();
+
+    /*
+    const auto reserve = [](auto &alloc) {
+        alloc.storage().allocator().reserve(1ull << 32);
+    };
+
+    db.init_entity_page_storage(reserve);
+    db.init_component_storage(reserve);
+    */
 
     System_fireworks_spawn      sys_spawn;
     System_fireworks_explode    sys_explode;
