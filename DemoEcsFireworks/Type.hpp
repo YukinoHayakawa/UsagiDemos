@@ -66,15 +66,3 @@ using ArchetypeSpark = Archetype<
     ComponentSprite,
     ComponentColor
 >;
-
-using EnabledComponents = ComponentFilter<
-    ComponentFireworks,
-    ComponentSpark,
-    ComponentPosition,
-    ComponentPhysics,
-    ComponentSprite,
-    ComponentColor
->;
-
-// todo infer components from systems
-using App = EnabledComponents::rebind<ResumableApp>;

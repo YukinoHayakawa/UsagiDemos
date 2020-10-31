@@ -31,6 +31,35 @@
 #include "System_draw_stat.hpp"
 #include "System_update_flag.hpp"
 
+
+using EnabledComponents = SystemComponentUsage<
+    System_fireworks_spawn    ,
+    System_fireworks_explode  ,
+    System_spark_fade         ,
+    System_physics            ,
+    System_remove_out_of_bound,
+    System_background_render  ,
+    System_sprite_render      ,
+    System_draw_stat          ,
+    System_gdi_present        ,
+    System_update_flag
+>;
+
+
+/*
+using EnabledComponents = ComponentFilter<
+    ComponentFireworks,
+    ComponentSpark,
+    ComponentPosition,
+    ComponentPhysics,
+    ComponentSprite,
+    ComponentColor
+>;*/
+
+
+// todo infer components from systems
+using App = EnabledComponents::apply<ResumableApp>;
+
 #define UPDATE_SYSTEM(sys) \
     sys.update(rt, EntityDatabaseAccessExternal< \
         App::DatabaseT, \
