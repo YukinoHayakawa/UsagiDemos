@@ -39,7 +39,7 @@ struct System_fireworks_spawn
             fireworks.val<ComponentColor>().rgb =
             { dis_color(gen), dis_color(gen), dis_color(gen) };
 
-            const EntityId e = db.create(fireworks);
+            const EntityId e = db.insert(fireworks);
             (void)e;
             time_pool -= 0.03f;
         }

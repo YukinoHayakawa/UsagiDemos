@@ -79,7 +79,7 @@ struct System_fireworks_explode
                             polarToCartesian(dis_v(gen), dis(gen));
                         spark.val<ComponentSprite>().size = 5;
 
-                        db.create(spark);
+                        db.insert(spark);
                         // db.create may invalidate the entity view
                         e = *begin;
                     }

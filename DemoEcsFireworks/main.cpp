@@ -45,19 +45,6 @@ using EnabledComponents = SystemComponentUsage<
     System_update_flag
 >;
 
-
-/*
-using EnabledComponents = ComponentFilter<
-    ComponentFireworks,
-    ComponentSpark,
-    ComponentPosition,
-    ComponentPhysics,
-    ComponentSprite,
-    ComponentColor
->;*/
-
-
-// todo infer components from systems
 using App = EnabledComponents::apply<ResumableApp>;
 
 #define UPDATE_SYSTEM(sys) \
