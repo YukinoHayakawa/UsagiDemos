@@ -63,21 +63,21 @@ struct System_fireworks_explode
                     {
                         auto &f_c = USAGI_COMPONENT(e, ComponentColor);
 
-                        spark.val<ComponentSpark>().fade_time_total =
-                        spark.val<ComponentSpark>().fade_time_left =
+                        spark.component<ComponentSpark>().fade_time_total =
+                        spark.component<ComponentSpark>().fade_time_left =
                             dis_ft(gen);
-                        spark.val<ComponentSpark>().base_color = f_c.rgb;
+                        spark.component<ComponentSpark>().base_color = f_c.rgb;
 
                         // copy the rocket position & color
-                        spark.val<ComponentPosition>() =
+                        spark.component<ComponentPosition>() =
                             USAGI_COMPONENT(e, ComponentPosition);
-                        spark.val<ComponentColor>() =
+                        spark.component<ComponentColor>() =
                             USAGI_COMPONENT(e, ComponentColor);
 
                         // set particle props
-                        spark.val<ComponentPhysics>().velocity =
+                        spark.component<ComponentPhysics>().velocity =
                             polarToCartesian(dis_v(gen), dis(gen));
-                        spark.val<ComponentSprite>().size = 5;
+                        spark.component<ComponentSprite>().size = 5;
 
                         db.insert(spark);
                         // db.create may invalidate the entity view
