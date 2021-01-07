@@ -20,7 +20,7 @@ struct Visitor : InputEventVisitor
         bool pressed) override
     {
         fmt::print("key={}, pressed={}\n",
-            archetype.val<ComponentKeyCode>().code,
+            archetype.component<ComponentKeyCode>().code,
             pressed
         );
     }
