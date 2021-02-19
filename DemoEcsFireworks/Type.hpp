@@ -3,7 +3,6 @@
 #include <Usagi/Module/Common/Math/Matrix.hpp>
 #include <Usagi/Entity/Archetype.hpp>
 #include <Usagi/Entity/EntityDatabase.hpp>
-#include <Usagi/Module/Common/Driver/ResumableApp.hpp>
 
 using namespace usagi;
 

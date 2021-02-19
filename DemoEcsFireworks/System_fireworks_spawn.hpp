@@ -25,18 +25,18 @@ struct System_fireworks_spawn
     void update(RuntimeServices &&rt, EntityDatabaseAccess &&db)
     {
         time_pool += static_cast<float>(
-            USAGI_SERVICE(rt, Service_master_clock).elapsed()
+            USAGI_SERVICE(rt, Service_master_clock).last_frame_time()
         );
 
         while(time_pool > 0.f)
         {
-            fireworks(ComponentFireworks()).num_sparks = 200;
-            fireworks(ComponentFireworks()).time_to_explode = 2;
-            fireworks(ComponentPosition()).position = { dis_x(gen), 0 };
-            fireworks(ComponentPhysics()).velocity = { 0, dis_v(gen) };
-            fireworks(ComponentPhysics()).acceleration = { 0, 0 };
-            fireworks(ComponentSprite()).size = 10;
-            fireworks(ComponentColor()).rgb =
+            fireworks(C<ComponentFireworks>()).num_sparks = 200;
+            fireworks(C<ComponentFireworks>()).time_to_explode = 2;
+            fireworks(C<ComponentPosition>()).position = { dis_x(gen), 0 };
+            fireworks(C<ComponentPhysics>()).velocity = { 0, dis_v(gen) };
+            fireworks(C<ComponentPhysics>()).acceleration = { 0, 0 };
+            fireworks(C<ComponentSprite>()).size = 10;
+            fireworks(C<ComponentColor>()).rgb =
                 { dis_color(gen), dis_color(gen), dis_color(gen) };
             db.insert(fireworks);
             time_pool -= 0.03f;

@@ -18,7 +18,7 @@ struct System_physics
     void update(RuntimeServices &&rt, EntityDatabaseAccess &&db)
     {
         const auto dt = static_cast<float>(
-            USAGI_SERVICE(rt, Service_master_clock).elapsed()
+            USAGI_SERVICE(rt, Service_master_clock).last_frame_time()
         );
 
         std::for_each(std::execution::par, db.begin(), db.end(), [&](auto &&p) {

@@ -4,7 +4,7 @@
 
 namespace usagi
 {
-struct stat
+struct StatFields
 {
     std::size_t sprite_count;
     double time_input;
@@ -21,9 +21,9 @@ struct stat
 
 struct Service_stat
 {
-    using ServiceType = stat;
+    using ServiceType = StatFields;
 
-    stat value;
+    StatFields value;
 
     ServiceType & get_service()
     {

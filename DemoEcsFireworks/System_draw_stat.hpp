@@ -35,7 +35,7 @@ struct System_draw_stat
     void update(RuntimeServices &&rt, EntityDatabaseAccess &&db)
     {
         const auto dt =
-            USAGI_SERVICE(rt, Service_master_clock).elapsed();
+            USAGI_SERVICE(rt, Service_master_clock).last_frame_time();
         auto &gdi = USAGI_SERVICE(rt, Service_graphics_gdi);
         auto &stat = USAGI_SERVICE(rt, Service_stat);
 

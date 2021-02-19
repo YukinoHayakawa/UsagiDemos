@@ -12,12 +12,12 @@
 
 // #define NDEBUG
 
-#include <Usagi/Entity/detail/EntityDatabaseAccessExternal.hpp>
-
 // #define Service_master_clock___          Service_master_clock_default
 // #define Service_graphics_gdi___          Service_graphics_gdi
 // #define Service_stat___                  Service_stat
 // #define Service_content_update_flag___   Service_content_update_flag
+#include <Usagi/Module/Common/Executive/SystemTaskList.hpp>
+#include <Usagi/Module/Common/Executive/AppHost.hpp>
 
 #include "System_fireworks_spawn.hpp"
 #include "System_fireworks_explode.hpp"
@@ -31,8 +31,7 @@
 #include "System_draw_stat.hpp"
 #include "System_update_flag.hpp"
 
-
-using EnabledComponents = SystemComponentUsage<
+using EnabledSystems = SystemTaskList<
     System_fireworks_spawn    ,
     System_fireworks_explode  ,
     System_spark_fade         ,
@@ -45,90 +44,71 @@ using EnabledComponents = SystemComponentUsage<
     System_update_flag
 >;
 
-using App = EnabledComponents::apply<ResumableApp>;
+struct RuntimeServices
+    : Service_master_clock_default
+    , Service_graphics_gdi
+    , Service_stat
+    , Service_content_update_flag
+{
+};
 
-#define UPDATE_SYSTEM(sys) \
-    sys.update(rt, EntityDatabaseAccessExternal< \
-        App::DatabaseT, \
-        ComponentAccessSystemAttribute<decltype(sys)> \
-    >(&db)) \
+using App = AppHost<RuntimeServices, EnabledSystems>;
+
+struct SystemUpdateObserver
+{
+    StatFields &stat;
+    Clock timer;
+
+#define OBSERVE_SYSTEM(sys, stat_field) \
+    void operator()(sys &, [[maybe_unused]] auto val) \
+    { \
+        stat.stat_field = timer.tick(); \
+    } \
 /**/
+
+    OBSERVE_SYSTEM(System_fireworks_spawn, time_spawn)
+    OBSERVE_SYSTEM(System_fireworks_explode, time_explode)
+    OBSERVE_SYSTEM(System_spark_fade, time_fade)
+    OBSERVE_SYSTEM(System_physics, time_physics)
+    OBSERVE_SYSTEM(System_remove_out_of_bound, time_remove)
+    OBSERVE_SYSTEM(System_background_render, time_clear)
+
+    void operator()(System_sprite_render &, auto val)
+    {
+        stat.sprite_count = val;
+        stat.time_render = timer.tick();
+    }
+
+    OBSERVE_SYSTEM(System_draw_stat, time_stat)
+    OBSERVE_SYSTEM(System_gdi_present, time_present)
+
+    // The system is passed as a l-value reference. A binding to r-value
+    // reference makes this overload a worse candidate due to the implicit
+    // conversion + reference collapsing. Therefore this can serve as a
+    // fallback. Other overloads must use l-value references for the first
+    // parameter.
+    void operator()(auto &&, auto val)
+    {
+    }
+};
 
 int main()
 {
     App demo { "demo_fireworks" };
-    auto &db = demo.database();
-
-    /*
-    const auto reserve = [](auto &alloc) {
-        alloc.storage().allocator().reserve(1ull << 32);
-    };
-
-    db.init_entity_page_storage(reserve);
-    db.init_component_storage(reserve);
-    */
-
-    System_fireworks_spawn      sys_spawn;
-    System_fireworks_explode    sys_explode;
-    System_spark_fade           sys_fade;
-    System_physics              sys_physics;
-    System_remove_out_of_bound  sys_remove_oob;
-    System_background_render    sys_bg;
-    System_sprite_render        sys_render;
-    System_draw_stat            sys_stat;
-    System_gdi_present          sys_present;
-    System_update_flag          sys_update_flag_test;
-
-    using namespace std::chrono_literals;
-
-    struct RuntimeServices
-        : Service_master_clock_default
-        , Service_graphics_gdi
-        , Service_stat
-        , Service_content_update_flag
-    {
-    } rt;
+    auto &svc = demo.services();
 
     while(true)
     {
-        USAGI_SERVICE(rt, Service_master_clock).tick();
-        auto &stat = USAGI_SERVICE(rt, Service_stat);
-
-        Clock timer;
+        auto &stat = USAGI_SERVICE(svc, Service_stat);
+        SystemUpdateObserver observer {
+            .stat = stat
+        };
+        USAGI_SERVICE(svc, Service_master_clock).tick();
 
         if(!run_game()) break;
-        stat.time_input = timer.tick();
+        stat.time_input = observer.timer.tick();
 
-        UPDATE_SYSTEM(sys_spawn);
-        stat.time_spawn = timer.tick();
-
-        UPDATE_SYSTEM(sys_explode);
-        stat.time_explode = timer.tick();
-
-        UPDATE_SYSTEM(sys_fade);
-        stat.time_fade = timer.tick();
-
-        UPDATE_SYSTEM(sys_physics);
-        stat.time_physics = timer.tick();
-
-        UPDATE_SYSTEM(sys_remove_oob);
-        stat.time_remove = timer.tick();
-
-        UPDATE_SYSTEM(sys_bg);
-        stat.time_clear = timer.tick();
-
-        stat.sprite_count = UPDATE_SYSTEM(sys_render);
-        stat.time_render = timer.tick();
-
-        UPDATE_SYSTEM(sys_stat);
-        stat.time_stat = timer.tick();
-
-        UPDATE_SYSTEM(sys_present);
-        stat.time_present = timer.tick();
-
-        UPDATE_SYSTEM(sys_update_flag_test);
-
-        db.reclaim_pages();
+        demo.update(observer);
     }
 
     return 0;
