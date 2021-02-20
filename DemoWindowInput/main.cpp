@@ -9,39 +9,55 @@
 #include <fmt/ostream.h>
 
 #include <Usagi/Module/Platform/WinCommon/Input/InputEventSourceWin32RawInput.hpp>
-#include <Usagi/Module/Service/Input/InputEventVisitor.hpp>
+#include <Usagi/Module/Service/Input/InputEventQueue.hpp>
+#include <Usagi/Module/Service/Input/SystemInputEventPump.hpp>
 
 using namespace usagi;
 
-struct Visitor : InputEventVisitor
+struct Services
+    : ServiceInputSource
 {
-    void keyboard_event(
-        const ArchetypeKeyboardEvent &archetype,
-        bool pressed) override
-    {
-        fmt::print("key={}, pressed={}\n",
-            archetype.component<ComponentKeyCode>().code,
-            pressed
-        );
-    }
-
-    void mouse_button_event(
-        const ArchetypeMouseButtonEvent &archetype,
-        bool pressed) override
+    Services()
+        : ServiceInputSource(std::make_unique<InputEventSourceWin32RawInput>())
     {
     }
-
-    void mouse_position_event(
-        const ArchetypeMousePositionEvent &archetype) override
-    {
-    }
-};
+} gServices;
 
 int main(int argc, char *argv[])
 {
-    InputEventSourceWin32RawInput pump;
-    Visitor visitor;
+    InputEventQueue input_event_queue;
+    SystemInputEventPump pump;
 
     while(true)
-        pump.pump_events(visitor);
+    {
+        auto sys_access = input_event_queue.create_access<
+            ComponentAccessSystemAttribute<SystemInputEventPump>
+        >();
+
+        pump.update(gServices, sys_access);
+
+        auto view_access = input_event_queue.create_access<
+            ComponentAccessAllowAll
+        >();
+
+        for(auto &&e : view_access.view<ComponentInputEvent>())
+        {
+            auto &msg = e.component<ComponentInputEvent>();
+            fmt::print(
+                "axis={}, "
+                "abs={{{},{}}}, rel={{{},{}}}, "
+                "pressed={}, released={}\n",
+                to_string(msg.axis),
+                msg.absolute.x(),
+                msg.absolute.y(),
+                msg.relative.x(),
+                msg.relative.y(),
+                msg.pressed(),
+                msg.released()
+            );
+            e.destroy();
+        }
+
+        input_event_queue.reclaim_pages();
+    }
 }
