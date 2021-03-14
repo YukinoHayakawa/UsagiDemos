@@ -71,6 +71,9 @@
     <ProjectReference Include="..\..\Module\Usagi\Module\Service\Input\Input.vcxproj">
       <Project>{c87b711a-0036-4d0e-aa0b-501677f198fd}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\Module\Usagi\Module\Service\Windowing\Windowing.vcxproj">
+      <Project>{bdf27242-7a3c-4dd2-b7c8-62962c96ca08}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
