@@ -2,6 +2,8 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 
+// #define NDEBUG
+
 #ifdef _DEBUG
 #pragma comment(lib, "fmtd.lib")
 #else
@@ -27,7 +29,7 @@ using namespace usagi;
 struct Services
     : ServiceInputSource
     , ServiceNativeWindowManager
-    , ServiceTransitionGraph
+    , ServiceStateTransitionGraph
 {
     Services()
         : ServiceInputSource(Tag<InputEventSourceWin32RawInput>())
@@ -70,7 +72,7 @@ int main(int argc, char *argv[])
 
     // auto &wnd_mgr = USAGI_SERVICE(gServices, ServiceNativeWindowManager);
 
-    auto &tg = USAGI_SERVICE(app.services(), ServiceTransitionGraph);
+    auto &tg = USAGI_SERVICE(app.services(), ServiceStateTransitionGraph);
     while(!tg.should_exit)
     {
         auto sys_access = input_event_queue.create_access<
@@ -87,6 +89,7 @@ int main(int argc, char *argv[])
         {
             auto &msg = e.component<ComponentInputEvent>();
             auto &time = e.component<ComponentTimestamp>();
+
             fmt::print(
                 "time={}, "
                 "axis={}, "
