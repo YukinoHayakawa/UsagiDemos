@@ -56,11 +56,12 @@ struct SystemClearSwapchainImage
         // todo: how to know when the thread is destroyed so we can release the resource (perhaps needs some common mechanism as the window)
         auto cmd_list = gfx.allocate_graphics_command_list(0);
 
+        // https://github.com/KhronosGroup/Vulkan-Guide/blob/master/chapters/extensions/VK_KHR_synchronization2.md#top_of_pipe-and-bottom_of_pipe-deprecation
         cmd_list.begin_recording();
         cmd_list.image_transition(
             image_info.image,
             // end of pipeline of the last usage of the swapchain image
-            GpuPipelineStage::AFTER_ALL_COMMANDS,
+            GpuPipelineStage::ALL_COMMANDS,
             GpuAccessMask::NONE,
             GpuImageLayout::UNDEFINED,
             // clear color image is performed in transfer stage
@@ -78,7 +79,7 @@ struct SystemClearSwapchainImage
             GpuPipelineStage::TRANSFER_CLEAR,
             GpuAccessMask::TRANSFER_WRITE,
             GpuImageLayout::TRANSFER_DST,
-            GpuPipelineStage::AFTER_ALL_COMMANDS,
+            GpuPipelineStage::ALL_COMMANDS,
             // Presentation automatically performs a visibility operation
             // https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers/issues/1717
             GpuAccessMask::NONE,
@@ -97,7 +98,7 @@ struct SystemClearSwapchainImage
         auto signal_sem = gfx.create_semaphore_info();
         signal_sem.add(
             std::move(sem_render_finished),
-            GpuPipelineStage::AFTER_ALL_COMMANDS
+            GpuPipelineStage::ALL_COMMANDS
         );
 
         // https://github.com/KhronosGroup/Vulkan-Guide/blob/master/chapters/extensions/VK_KHR_synchronization2.md
