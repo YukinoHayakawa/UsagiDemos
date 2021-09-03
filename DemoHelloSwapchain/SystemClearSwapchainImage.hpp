@@ -42,19 +42,23 @@ struct SystemClearSwapchainImage
         // todo: how to know when the window is destroyed so the resource can be released.
         // todo: how to specify the swapchain spec
         auto &swapchain = gfx.swapchain(wnd);
-        // this will return a semaphore that can be waited on GPU. see later
-        // submission commands for synchronization details.
-        std::array image_sem { swapchain.acquire_next_image() };
+
+        // prepare synchronization primitives
+        auto sem_image_avail = gfx.allocate_semaphore();
+        auto sem_render_finished = gfx.allocate_semaphore();
+        std::array present_wait { sem_render_finished.get() };
+
+        const auto image_info = swapchain.acquire_next_image(
+            sem_image_avail.get());
 
         // The graphics service internally manages a command list allocator
         // for each thread.
         // todo: how to know when the thread is destroyed so we can release the resource (perhaps needs some common mechanism as the window)
-        std::array cmd_lists { gfx.thread_allocate_graphics_command_list() };
-        auto &cmd_list = cmd_lists.front();
+        auto cmd_list = gfx.allocate_graphics_command_list(0);
 
         cmd_list.begin_recording();
         cmd_list.image_transition(
-            swapchain.current_image(),
+            image_info.image,
             // end of pipeline of the last usage of the swapchain image
             GpuPipelineStage::AFTER_ALL_COMMANDS,
             GpuAccessMask::NONE,
@@ -65,12 +69,12 @@ struct SystemClearSwapchainImage
             GpuImageLayout::TRANSFER_DST
         );
         cmd_list.clear_color_image(
-            swapchain.current_image(),
+            image_info.image,
             GpuImageLayout::TRANSFER_DST,
             fill_color
         );
         cmd_list.image_transition(
-            swapchain.current_image(),
+            image_info.image,
             GpuPipelineStage::TRANSFER_CLEAR,
             GpuAccessMask::TRANSFER_WRITE,
             GpuImageLayout::TRANSFER_DST,
@@ -82,23 +86,32 @@ struct SystemClearSwapchainImage
         );
         cmd_list.end_recording();
 
-        // todo semaphore pool
-        std::array rendering_finished_sem {
-            swapchain.semaphore_rendering_finished()
-        };
+        auto cmd_submission_list = gfx.create_command_buffer_list();
+        cmd_submission_list.add(std::move(cmd_list));
 
-        std::array wait_stages { GpuPipelineStage::COLOR_ATTACHMENT_OUTPUT };
-        std::array signal_stages { GpuPipelineStage::AFTER_ALL_COMMANDS };
-        // todo new submission command
+        auto wait_sem = gfx.create_semaphore_info();
+        wait_sem.add(
+            std::move(sem_image_avail),
+            GpuPipelineStage::COLOR_ATTACHMENT_OUTPUT
+        );
+        auto signal_sem = gfx.create_semaphore_info();
+        signal_sem.add(
+            std::move(sem_render_finished),
+            GpuPipelineStage::AFTER_ALL_COMMANDS
+        );
+
         // https://github.com/KhronosGroup/Vulkan-Guide/blob/master/chapters/extensions/VK_KHR_synchronization2.md
         gfx.submit_graphics_jobs(
-            cmd_lists,
-            image_sem,
-            wait_stages,
-            rendering_finished_sem,
-            signal_stages
+            std::move(cmd_submission_list),
+            std::move(wait_sem),
+            // render finished sem signaled here
+            std::move(signal_sem)
         );
-        swapchain.present(rendering_finished_sem);
+
+        // wait on render finished sem
+        swapchain.present(image_info, present_wait);
+
+        gfx.reclaim_resources();
     }
 };
 }

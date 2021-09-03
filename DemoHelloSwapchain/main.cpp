@@ -58,6 +58,8 @@ using App = AppHost<Services, TaskList>;
 
 int main(int argc, char *argv[])
 {
+    std::filesystem::remove_all("demo_window_swapchain");
+
     App app { "demo_window_swapchain" };
     auto &db = app.database_world();
     InputEventQueue input_event_queue;
@@ -67,7 +69,7 @@ int main(int argc, char *argv[])
         .view<ComponentNativeWindow>()) == 0)
     {
         auto &c_wnd = gArchetypeWindow.component<ComponentNativeWindow>();
-        c_wnd.identifier = "usagi";
+        c_wnd.identifier = "main";
         c_wnd.on_close = ComponentNativeWindow::NOTIFY_EXIT;
         auto &c_region = gArchetypeWindow.component<ComponentRegion2D>();
         c_region.size = { 1280, 720 };
@@ -78,6 +80,9 @@ int main(int argc, char *argv[])
     // auto &wnd_mgr = USAGI_SERVICE(gServices, ServiceNativeWindowManager);
 
     auto &tg = USAGI_SERVICE(app.services(), ServiceStateTransitionGraph);
+    auto &gfx = USAGI_SERVICE(app.services(), ServiceHardwareGraphics);
+    gfx.set_thread_resource_pool_size(1);
+
     while(!tg.should_exit)
     {
         auto sys_access = input_event_queue.create_access<
