@@ -57,11 +57,13 @@ struct SystemClearSwapchainImage
         auto cmd_list = gfx.allocate_graphics_command_list(0);
 
         // https://github.com/KhronosGroup/Vulkan-Guide/blob/master/chapters/extensions/VK_KHR_synchronization2.md#top_of_pipe-and-bottom_of_pipe-deprecation
+        // https://github.com/philiptaylor/vulkan-sxs/blob/master/04-clear/README.md
         cmd_list.begin_recording();
         cmd_list.image_transition(
             image_info.image,
             // end of pipeline of the last usage of the swapchain image
-            GpuPipelineStage::ALL_COMMANDS,
+            // GpuPipelineStage::ALL_COMMANDS,
+            GpuPipelineStage::TOP_OF_PIPE,
             GpuAccessMask::NONE,
             GpuImageLayout::UNDEFINED,
             // clear color image is performed in transfer stage
@@ -79,7 +81,8 @@ struct SystemClearSwapchainImage
             GpuPipelineStage::TRANSFER_CLEAR,
             GpuAccessMask::TRANSFER_WRITE,
             GpuImageLayout::TRANSFER_DST,
-            GpuPipelineStage::ALL_COMMANDS,
+            // GpuPipelineStage::NONE,
+            GpuPipelineStage::BOTTOM_OF_PIPE,
             // Presentation automatically performs a visibility operation
             // https://github.com/KhronosGroup/Vulkan-LoaderAndValidationLayers/issues/1717
             GpuAccessMask::NONE,
@@ -93,12 +96,12 @@ struct SystemClearSwapchainImage
         auto wait_sem = gfx.create_semaphore_info();
         wait_sem.add(
             std::move(sem_image_avail),
-            GpuPipelineStage::COLOR_ATTACHMENT_OUTPUT
+            GpuPipelineStage::TRANSFER_CLEAR
         );
         auto signal_sem = gfx.create_semaphore_info();
         signal_sem.add(
             std::move(sem_render_finished),
-            GpuPipelineStage::ALL_COMMANDS
+            GpuPipelineStage::BOTTOM_OF_PIPE
         );
 
         // https://github.com/KhronosGroup/Vulkan-Guide/blob/master/chapters/extensions/VK_KHR_synchronization2.md
