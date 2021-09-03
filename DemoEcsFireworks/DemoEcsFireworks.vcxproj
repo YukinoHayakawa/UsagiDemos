@@ -84,16 +84,16 @@
     <ProjectReference Include="..\..\Library\Usagi\Usagi.vcxproj">
       <Project>{f9061c06-bce6-416b-9aeb-31351810b7ba}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\Module\Usagi\Module\Common\Executive\Executive.vcxproj">
+    <ProjectReference Include="..\..\Modules\Usagi\Modules\Common\Executive\Executive.vcxproj">
       <Project>{345cdbb7-1ec3-4e1c-ad4f-856a774430f5}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\Module\Usagi\Module\Common\Math\Math.vcxproj">
+    <ProjectReference Include="..\..\Modules\Usagi\Modules\Common\Math\Math.vcxproj">
       <Project>{d4e79012-d153-40c0-b62d-fc9b31495442}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\Module\Usagi\Module\Common\Time\Time.vcxproj">
+    <ProjectReference Include="..\..\Modules\Usagi\Modules\Common\Time\Time.vcxproj">
       <Project>{61c2c8d3-d6d1-4bea-b122-43142579ba35}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\Module\Usagi\Module\Platform\Win10\Win10.vcxproj">
+    <ProjectReference Include="..\..\Modules\Usagi\Modules\Platforms\Win10\Win10.vcxproj">
       <Project>{ba6b6731-dfa8-4da0-b121-d3d8d584b001}</Project>
     </ProjectReference>
   </ItemGroup>

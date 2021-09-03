@@ -3,7 +3,7 @@
 #include <random>
 
 #include <Usagi/Runtime/Service.hpp>
-#include <Usagi/Module/Common/Time/Clock.hpp>
+#include <Usagi/Modules/Common/Time/Clock.hpp>
 
 #include "Type.hpp"
 #include "Service_master_clock.hpp"

@@ -2,7 +2,7 @@
 
 #include <execution>
 
-#include <Usagi/Module/Common/Math/Bezier.hpp>
+#include <Usagi/Modules/Common/Math/Bezier.hpp>
 
 #include "Type.hpp"
 

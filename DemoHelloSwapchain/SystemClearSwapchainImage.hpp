@@ -1,12 +1,12 @@
 ﻿#pragma once
 
 #include <Usagi/Entity/EntityDatabase.hpp>
-#include <Usagi/Module/Common/Color/Color.hpp>
+#include <Usagi/Modules/Common/Color/Color.hpp>
 #include <Usagi/Runtime/Service.hpp>
 
-#include <Usagi/Module/Platform/Vulkan/VulkanGpuDevice.hpp>
-#include <Usagi/Module/Service/Graphics/Enum.hpp>
-#include <Usagi/Module/Service/Windowing/ServiceNativeWindowManager.hpp>
+#include <Usagi/Modules/Platforms/Vulkan/VulkanGpuDevice.hpp>
+#include <Usagi/Modules/Services/Graphics/Enum.hpp>
+#include <Usagi/Modules/Services/Windowing/ServiceNativeWindowManager.hpp>
 
 #include "ServiceColorChoice.hpp"
 

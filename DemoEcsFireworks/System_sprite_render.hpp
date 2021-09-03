@@ -26,8 +26,8 @@ struct System_sprite_render
         (void)cdc;
         Bitmap &bitmap = USAGI_SERVICE(rt, Service_graphics_gdi).bitmap;
 
-        std::atomic<std::size_t> count = 0;
-        std::for_each(std::execution::par, db.begin(), db.end(), [&](auto &&p) {
+        auto draw = [&](auto &&p) {
+            std::uint64_t count = 0;
             for(auto &&e : db.page_view(p, ReadAccess()))
             {
                 auto &pos = USAGI_COMPONENT(e, ComponentPosition);
@@ -46,10 +46,16 @@ struct System_sprite_render
                     sprite.size,
                     rgb
                 );
-                ++count; // VERY EXPENSIVE
+                ++count;
             }
-        });
+            return count;
+        };
 
-        return count.load();
+        const std::uint64_t count = std::transform_reduce(
+            std::execution::par, db.begin(), db.end(), 0ull,
+            std::plus<std::uint64_t>(), draw
+        );
+
+        return count;
     }
 };

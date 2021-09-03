@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include <Usagi/Module/Common/Math/Matrix.hpp>
+#include <Usagi/Modules/Common/Math/Matrix.hpp>
 #include <Usagi/Entity/Archetype.hpp>
 #include <Usagi/Entity/EntityDatabase.hpp>
 

@@ -11,18 +11,18 @@
 #endif
 
 #include <fmt/ostream.h>
-#include <Usagi/Module/Common/Executive/AppHost.hpp>
+#include <Usagi/Modules/Common/Executive/AppHost.hpp>
 
-#include <Usagi/Module/Common/Executive/SystemTaskList.hpp>
-#include <Usagi/Module/Common/Math/ComponentRegion2D.hpp>
-#include <Usagi/Module/Service/Input/InputEventQueue.hpp>
-#include <Usagi/Module/Service/Input/SystemInputEventPump.hpp>
-#include <Usagi/Module/Service/Windowing/ComponentNativeWindow.hpp>
-#include <Usagi/Module/Service/Windowing/ServiceNativeWindowManager.hpp>
-#include <Usagi/Module/Service/Windowing/SystemNativeWindowCoordinator.hpp>
+#include <Usagi/Modules/Common/Executive/SystemTaskList.hpp>
+#include <Usagi/Modules/Common/Math/ComponentRegion2D.hpp>
+#include <Usagi/Modules/Services/Input/InputEventQueue.hpp>
+#include <Usagi/Modules/Services/Input/SystemInputEventPump.hpp>
+#include <Usagi/Modules/Services/Windowing/ComponentNativeWindow.hpp>
+#include <Usagi/Modules/Services/Windowing/ServiceNativeWindowManager.hpp>
+#include <Usagi/Modules/Services/Windowing/SystemNativeWindowCoordinator.hpp>
 
-#include <Usagi/Module/Platform/WinCommon/Input/InputEventSourceWin32RawInput.hpp>
-#include <Usagi/Module/Platform/WinCommon/Windowing/NativeWindowManagerWin32.hpp>
+#include <Usagi/Modules/Platforms/WinCommon/Input/InputEventSourceWin32RawInput.hpp>
+#include <Usagi/Modules/Platforms/WinCommon/Windowing/NativeWindowManagerWin32.hpp>
 
 using namespace usagi;
 
