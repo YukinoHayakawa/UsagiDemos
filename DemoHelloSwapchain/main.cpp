@@ -25,6 +25,7 @@
 #include <Usagi/Module/Platform/WinCommon/Input/InputEventSourceWin32RawInput.hpp>
 #include <Usagi/Module/Platform/WinCommon/Windowing/NativeWindowManagerWin32.hpp>
 
+#include "ServiceColorChoice.hpp"
 #include "SystemClearSwapchainImage.hpp"
 
 using namespace usagi;
@@ -34,6 +35,7 @@ struct Services
     , ServiceNativeWindowManager
     , ServiceStateTransitionGraph
     , ServiceHardwareGraphics
+    , ServiceColorChoice
 {
     Services()
         : ServiceInputSource(Tag<InputEventSourceWin32RawInput>())
@@ -81,6 +83,7 @@ int main(int argc, char *argv[])
 
     auto &tg = USAGI_SERVICE(app.services(), ServiceStateTransitionGraph);
     auto &gfx = USAGI_SERVICE(app.services(), ServiceHardwareGraphics);
+    auto &color = USAGI_SERVICE(app.services(), ServiceColorChoice);
     gfx.set_thread_resource_pool_size(1);
 
     while(!tg.should_exit)
@@ -101,10 +104,12 @@ int main(int argc, char *argv[])
             [[maybe_unused]]
             auto &time = e.component<ComponentTimestamp>();
 
-            if(msg.axis == InputAxis::A && msg.pressed())
-            {
-
-            }
+            if(msg.axis == InputAxis::DIGIT_1 && msg.pressed())
+                color.color_choice = 0;
+            else if(msg.axis == InputAxis::DIGIT_2 && msg.pressed())
+                color.color_choice = 1;
+            else if(msg.axis == InputAxis::DIGIT_3 && msg.pressed())
+                color.color_choice = 2;
 
             e.destroy();
         }

@@ -8,6 +8,8 @@
 #include <Usagi/Module/Service/Graphics/Enum.hpp>
 #include <Usagi/Module/Service/Windowing/ServiceNativeWindowManager.hpp>
 
+#include "ServiceColorChoice.hpp"
+
 namespace usagi
 {
 USAGI_DECL_ALIAS_SERVICE(
@@ -23,13 +25,19 @@ struct SystemClearSwapchainImage
     void update(auto &&rt, auto &&db)
     {
         // The color used to fill the swapchain image
-        Color4f fill_color { 245/255.f, 169/255.f, 184/255.f, 1.f };
+        Color4f colors[] {
+            { 245 / 255.f, 169 / 255.f, 184 / 255.f, 1.f },
+            { 91 / 255.f, 206 / 255.f, 250 / 255.f, 1.f },
+            { 255 / 255.f, 255 / 255.f, 255 / 255.f, 1.f },
+        };
+
         // todo: need a way to allow different impl while providing an unified service name
         // This service provides access to GPU resources with automatic lifetime
         // management.
         auto &gfx = USAGI_SERVICE(rt, ServiceHardwareGraphics);
         // This services synchronizes window entities with the operating system.
         auto &wnd_mgr = USAGI_SERVICE(rt, ServiceNativeWindowManager);
+        auto &color = USAGI_SERVICE(rt, ServiceColorChoice);
 
         // Suppose the main window is already created by some initialization
         // system and is called _main_.
@@ -74,7 +82,7 @@ struct SystemClearSwapchainImage
         cmd_list.clear_color_image(
             image_info.image,
             GpuImageLayout::TRANSFER_DST,
-            fill_color
+            colors[color.color_choice]
         );
         cmd_list.image_transition(
             image_info.image,
