@@ -8,12 +8,13 @@
 
 struct System_spark_fade
 {
-    using WriteAccess = ComponentFilter<
+    // required by entity.destroy()
+    using WriteAccess = AllComponents;
+    // Actually used components:
+    using AccessedComponents = ComponentFilter<
         ComponentSpark,
         ComponentColor
     >;
-    // required by entity.destroy()
-    using WriteAllAccess = void;
 
     template <typename RuntimeServices, typename EntityDatabaseAccess>
     void update(RuntimeServices &&rt, EntityDatabaseAccess &&db)
@@ -24,7 +25,7 @@ struct System_spark_fade
 
         std::for_each(std::execution::par, db.begin(), db.end(), [&](auto &&p) {
             db.page_view(p, ComponentFilter<>());
-            for(auto &&e : db.page_view(p, WriteAccess()))
+            for(auto &&e : db.page_view(p, AccessedComponents()))
             {
                 auto &f_s = USAGI_COMPONENT(e, ComponentSpark);
                 auto &f_c = USAGI_COMPONENT(e, ComponentColor);

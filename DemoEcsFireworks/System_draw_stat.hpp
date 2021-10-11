@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include <Usagi/Entity/detail/ComponentFilter.hpp>
-#include <Usagi/Runtime/Service.hpp>
+#include <Usagi/Runtime/Service/Service.hpp>
 
 #include "Service_master_clock.hpp"
 #include "Service_graphics_gdi.hpp"

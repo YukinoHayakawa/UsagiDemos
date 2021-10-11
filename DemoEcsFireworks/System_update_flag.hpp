@@ -2,7 +2,7 @@
 
 #include <Usagi/Entity/Archetype.hpp>
 #include <Usagi/Entity/EntityDatabase.hpp>
-#include <Usagi/Runtime/Service.hpp>
+#include <Usagi/Runtime/Service/Service.hpp>
 
 #include "Service_content_update_flag.hpp"
 

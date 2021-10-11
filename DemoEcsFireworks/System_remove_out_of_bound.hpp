@@ -6,7 +6,7 @@ struct System_remove_out_of_bound
 {
     using ReadAccess = ComponentFilter<ComponentPosition>;
     // required by entity.destroy()
-    using WriteAllAccess = void;
+    using WriteAccess = AllComponents;
 
     template <typename RuntimeServices, typename EntityDatabaseAccess>
     void update(RuntimeServices &&rt, EntityDatabaseAccess &&db)
