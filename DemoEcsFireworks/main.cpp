@@ -4,20 +4,14 @@
 // some distance and explode. The sparks fly away from the explosion center
 // and gradually disappear.
 
-#ifdef _DEBUG
-#pragma comment(lib, "fmtd.lib")
-#else
-#pragma comment(lib, "fmt.lib")
-#endif
-
 // #define NDEBUG
 
 // #define Service_master_clock___          Service_master_clock_default
 // #define Service_graphics_gdi___          Service_graphics_gdi
 // #define Service_stat___                  Service_stat
 // #define Service_content_update_flag___   Service_content_update_flag
-#include <Usagi/Modules/Common/Executive/SystemTaskList.hpp>
-#include <Usagi/Modules/Common/Executive/AppHost.hpp>
+#include <Usagi/Modules/Runtime/Executive/SystemTaskList.hpp>
+#include <Usagi/Modules/Runtime/Executive/AppHost.hpp>
 
 #include "System_fireworks_spawn.hpp"
 #include "System_fireworks_explode.hpp"

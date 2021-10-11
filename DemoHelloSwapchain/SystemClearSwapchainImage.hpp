@@ -6,8 +6,8 @@
 #include <Usagi/Runtime/Service/LazyInitService.hpp>
 
 #include <Usagi/Modules/Platforms/Vulkan/VulkanGpuDevice.hpp>
-#include <Usagi/Modules/Services/Graphics/Enum.hpp>
-#include <Usagi/Modules/Services/Windowing/ServiceNativeWindowManager.hpp>
+#include <Usagi/Modules/IO/Graphics/Enum.hpp>
+#include <Usagi/Modules/IO/Windowing/ServiceNativeWindowManager.hpp>
 
 #include "ServiceColorChoice.hpp"
 

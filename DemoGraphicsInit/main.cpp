@@ -3,24 +3,16 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 
-// #define NDEBUG
-
-#ifdef _DEBUG
-#pragma comment(lib, "fmtd.lib")
-#else
-#pragma comment(lib, "fmt.lib")
-#endif
-
 #include <fmt/ostream.h>
 
-#include <Usagi/Modules/Common/Executive/AppHost.hpp>
-#include <Usagi/Modules/Common/Executive/SystemTaskList.hpp>
+#include <Usagi/Modules/Runtime/Executive/AppHost.hpp>
+#include <Usagi/Modules/Runtime/Executive/SystemTaskList.hpp>
 #include <Usagi/Modules/Common/Math/ComponentRegion2D.hpp>
-#include <Usagi/Modules/Services/Input/InputEventQueue.hpp>
-#include <Usagi/Modules/Services/Input/SystemInputEventPump.hpp>
-#include <Usagi/Modules/Services/Windowing/ComponentNativeWindow.hpp>
-#include <Usagi/Modules/Services/Windowing/ServiceNativeWindowManager.hpp>
-#include <Usagi/Modules/Services/Windowing/SystemNativeWindowCoordinator.hpp>
+#include <Usagi/Modules/IO/Input/InputEventQueue.hpp>
+#include <Usagi/Modules/IO/Input/SystemInputEventPump.hpp>
+#include <Usagi/Modules/IO/Windowing/ComponentNativeWindow.hpp>
+#include <Usagi/Modules/IO/Windowing/ServiceNativeWindowManager.hpp>
+#include <Usagi/Modules/IO/Windowing/SystemNativeWindowCoordinator.hpp>
 
 #include <Usagi/Modules/Platforms/WinCommon/Input/InputEventSourceWin32RawInput.hpp>
 #include <Usagi/Modules/Platforms/WinCommon/Windowing/NativeWindowManagerWin32.hpp>

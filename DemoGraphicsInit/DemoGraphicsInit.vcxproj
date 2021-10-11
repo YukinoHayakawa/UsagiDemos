@@ -79,7 +79,7 @@
     <ProjectReference Include="..\..\Modules\Usagi\Modules\Platforms\Win10\Win10.vcxproj">
       <Project>{ba6b6731-dfa8-4da0-b121-d3d8d584b001}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\Modules\Usagi\Modules\Services\Graphics\Graphics.vcxproj">
+    <ProjectReference Include="..\..\Modules\Usagi\Modules\IO\Graphics\Graphics.vcxproj">
       <Project>{5ae8f2da-6b3e-4492-a009-112a62b056be}</Project>
     </ProjectReference>
   </ItemGroup>

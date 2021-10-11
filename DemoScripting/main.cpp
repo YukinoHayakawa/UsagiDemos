@@ -6,8 +6,8 @@
 
 #include <fmt/ostream.h>
 
-#include <Usagi/Modules/Common/ProgramModule/ClangJIT.hpp>
-#include <Usagi/Modules/Common/ProgramModule/RuntimeModule.hpp>
+#include <Usagi/Modules/Runtime/ProgramModule/ClangJIT.hpp>
+#include <Usagi/Modules/Runtime/ProgramModule/RuntimeModule.hpp>
 
 using namespace usagi;
 
