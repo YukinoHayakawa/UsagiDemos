@@ -8,6 +8,7 @@
 
 #include <Usagi/Modules/Runtime/ProgramModule/ClangJIT.hpp>
 #include <Usagi/Modules/Runtime/ProgramModule/RuntimeModule.hpp>
+#include <Usagi/Runtime/File/RegularFile.hpp>
 
 using namespace usagi;
 
@@ -22,8 +23,11 @@ int main(int argc, char *argv[])
 {
     ClangJIT jit;
 
+    RegularFile file { "foo2.pch" };
+    MappedFileView view = file.create_view();
+
     auto compiler = jit.create_compiler();
-    compiler.set_pch("foo.pch");
+    compiler.set_pch(view.memory_region());
     MemoryRegion src;
     src.base_address = source.data();
     src.length = source.size();
