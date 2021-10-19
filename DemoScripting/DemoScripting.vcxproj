@@ -61,8 +61,17 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Library\Usagi\Usagi.vcxproj">
+      <Project>{f9061c06-bce6-416b-9aeb-31351810b7ba}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\Modules\Usagi\Modules\Common\Logging\Logging.vcxproj">
       <Project>{e13613a3-b719-4bc5-991a-507402d14c25}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Modules\Usagi\Modules\Platforms\Win10\Win10.vcxproj">
+      <Project>{ba6b6731-dfa8-4da0-b121-d3d8d584b001}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Modules\Usagi\Modules\Platforms\WinCommon\WinCommon.vcxproj">
+      <Project>{cd325def-b361-4cc5-87ac-bf51588dbf2d}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\Modules\Usagi\Modules\Runtime\ProgramModule\ProgramModule.vcxproj">
       <Project>{e5b7e645-8062-4b01-af1c-cf462b608a6b}</Project>
