@@ -85,9 +85,14 @@ public:
         compiler.set_pch(view.memory_region());
         compiler.add_source("test", primary);
 
-        return std::shared_ptr(compiler.compile());
+        auto mdl = compiler.compile();
+        assert(mdl);
+
+        return std::shared_ptr(std::move(mdl));
     }
 };
+
+ClangJIT ScriptJitConstructor::jit;
 
 int main(int argc, char *argv[])
 {
@@ -95,11 +100,14 @@ int main(int argc, char *argv[])
     AssetManager asset_manager;
     asset_manager.add_package(std::make_shared<AssetPackageFilesystem>("."));
 
-    for(int i = 0; i < 8; ++i)
+    const auto nt = 32;
+    std::vector<std::thread> ts;
+    ts.reserve(nt);
+
+    for(int i = 0; i < nt; ++i)
     {
-        const auto future = std::async(
-            std::launch::async, [&]() {
-            PrimaryAsset asset;
+        ts.emplace_back([&]() {
+            // PrimaryAsset asset;
             SecondaryAsset asset_sec = asset_manager.secondary_asset(
                 "test.cpp",
                 std::make_unique<ScriptJitConstructor>(),
@@ -127,7 +135,7 @@ int main(int argc, char *argv[])
                 //     default:
                 //         throw 0;
                 // }
-            } while(asset.status != AssetStatus::SECONDARY_READY);
+            } while(asset_sec.status != AssetStatus::SECONDARY_READY);
 
             auto mdl = std::any_cast<std::shared_ptr<RuntimeModule>>(
                 asset_sec.object
@@ -137,4 +145,7 @@ int main(int argc, char *argv[])
             std::cout << ret << std::endl;
         });
     }
+
+    for(auto &&t : ts)
+        t.join();
 }
