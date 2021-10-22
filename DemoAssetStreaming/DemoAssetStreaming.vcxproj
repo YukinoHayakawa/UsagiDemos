@@ -70,6 +70,9 @@
     <ProjectReference Include="..\..\Modules\Usagi\Modules\Runtime\Asset\Asset.vcxproj">
       <Project>{8722e8a6-ddc8-4283-8dff-45cd15e7dc6f}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\Modules\Usagi\Modules\Runtime\ProgramModule\ProgramModule.vcxproj">
+      <Project>{e5b7e645-8062-4b01-af1c-cf462b608a6b}</Project>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
