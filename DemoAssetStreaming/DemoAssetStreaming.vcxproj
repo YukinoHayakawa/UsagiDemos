@@ -61,6 +61,9 @@
     <ProjectReference Include="..\..\Library\Usagi\Usagi.vcxproj">
       <Project>{f9061c06-bce6-416b-9aeb-31351810b7ba}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\Modules\Usagi\Modules\Assets\SahProgramModule\SahProgramModule.vcxproj">
+      <Project>{10c7f91a-9061-4691-a5de-c115bcc5cf50}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\Modules\Usagi\Modules\Common\Logging\Logging.vcxproj">
       <Project>{e13613a3-b719-4bc5-991a-507402d14c25}</Project>
     </ProjectReference>
@@ -69,9 +72,6 @@
     </ProjectReference>
     <ProjectReference Include="..\..\Modules\Usagi\Modules\Runtime\Asset\Asset.vcxproj">
       <Project>{8722e8a6-ddc8-4283-8dff-45cd15e7dc6f}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Modules\Usagi\Modules\Runtime\ProgramModule\ProgramModule.vcxproj">
-      <Project>{e5b7e645-8062-4b01-af1c-cf462b608a6b}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

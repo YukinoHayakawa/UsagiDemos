@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
     src.length = source.size();
     compiler.add_source("test", src);
     auto module_ = compiler.compile();
-    auto ret = module_->get_function_address<int()>("bar")();
+    auto ret = module_.get_function_address<int()>("bar")();
 
     std::cout << ret << std::endl;
 }

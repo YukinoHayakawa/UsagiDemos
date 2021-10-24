@@ -3,14 +3,16 @@
 #include <future>
 #include <iostream>
 
+#include <Usagi/Library/Memory/LockGuard.hpp>
+#include <Usagi/Modules/Assets/SahProgramModule/SahProgramModule.hpp>
 #include <Usagi/Modules/Common/Time/Clock.hpp>
 #include <Usagi/Modules/Runtime/Asset/AssetManager.hpp>
-#include <Usagi/Modules/Runtime/Asset/SecondaryAssetConstructor.hpp>
+#include <Usagi/Modules/Runtime/Asset/SecondaryAsset.hpp>
+#include <Usagi/Modules/Runtime/Asset/SecondaryAssetHandler.hpp>
 #include <Usagi/Modules/Runtime/Asset/Package/AssetPackageFilesystem.hpp>
 #include <Usagi/Modules/Runtime/ProgramModule/ClangJIT.hpp>
 #include <Usagi/Modules/Runtime/ProgramModule/RuntimeModule.hpp>
 #include <Usagi/Runtime/Task.hpp>
-#include <Usagi/Runtime/File/RegularFile.hpp>
 
 using namespace usagi;
 
@@ -24,29 +26,30 @@ class StdTaskExecutor : public TaskExecutor
 public:
     std::uint64_t submit(
         std::unique_ptr<Task> task,
-        std::uint64_t wait_on) override
+        std::optional<std::vector<std::uint64_t>> wait_on) override
     {
         std::lock_guard lk(mMutex);
-
-        // find the dependent task
-        TaskRef wait_it = mTask.end();
-        if(wait_on != INVALID_TASK)
-        {
-            wait_it = mTask.find(wait_on);
-            assert(wait_it != mTask.end());
-        }
 
         auto task_id = ++mTaskId;
 
         auto future = std::async(
             std::launch::async,
-            [t = std::move(task), wait = wait_it, end = mTask.end()]() {
+            [t = std::move(task), wait = std::move(wait_on), this]() {
                 Clock clk;
                 // using namespace std::chrono_literals;
                 // std::this_thread::sleep_for(5ms);
 
-                if(wait != end)
-                    wait->second.wait();
+                if(wait.has_value())
+                {
+                    for(auto &&w : *wait)
+                    {
+                        LockGuard lk(mMutex);
+                        auto wt = mTask.find(w);
+                        assert(wt != mTask.end());
+                        lk.unlock();
+                        wt->second.wait();
+                    }
+                }
 
                 if(!t->precondition()) throw std::runtime_error("");
                 t->on_started();
@@ -64,42 +67,12 @@ public:
     }
 };
 
-class ScriptJitConstructor : public SecondaryAssetConstructor
-{
-    static ClangJIT jit;
-
-public:
-    AssetCacheSignature signature() override
-    {
-        return { };
-    }
-
-    std::any construct(ReadonlyMemoryRegion primary) override
-    {
-        std::cout << "construct called" << std::endl;
-
-        RegularFile file { "foo2.pch" };
-        MappedFileView view = file.create_view();
-
-        auto compiler = jit.create_compiler();
-        compiler.set_pch(view.memory_region());
-        compiler.add_source("test", primary);
-
-        auto mdl = compiler.compile();
-        assert(mdl);
-
-        return std::shared_ptr(std::move(mdl));
-    }
-};
-
-ClangJIT ScriptJitConstructor::jit;
-
 int main(int argc, char *argv[])
 {
+    ClangJIT jit;
     StdTaskExecutor executor;
     AssetManager asset_manager;
     asset_manager.add_package(std::make_shared<AssetPackageFilesystem>("."));
-
     const auto nt = 32;
     std::vector<std::thread> ts;
     ts.reserve(nt);
@@ -108,10 +81,16 @@ int main(int argc, char *argv[])
     {
         ts.emplace_back([&]() {
             // PrimaryAsset asset;
-            SecondaryAsset asset_sec = asset_manager.secondary_asset(
-                "test.cpp",
-                std::make_unique<ScriptJitConstructor>(),
-                &executor
+
+            auto handler = std::make_unique<SahProgramModule>(
+                jit,
+                "foo2.pch",
+                "test.cpp"
+            );
+
+            SecondaryAssetMeta asset_sec = asset_manager.secondary_asset(
+                std::move(handler),
+                executor
             );
             do
             {
@@ -137,9 +116,7 @@ int main(int argc, char *argv[])
                 // }
             } while(asset_sec.status != AssetStatus::SECONDARY_READY);
 
-            auto mdl = std::any_cast<std::shared_ptr<RuntimeModule>>(
-                asset_sec.object
-            );
+            auto mdl = asset_sec.asset->as<SahProgramModule::SecondaryAssetT>();
             auto ret = mdl->get_function_address<int()>("bar")();
 
             std::cout << ret << std::endl;
