@@ -62,9 +62,6 @@
     <ClInclude Include="System_sprite_render.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="System_star_render.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="System_update_flag.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
