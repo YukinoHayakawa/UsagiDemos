@@ -2,11 +2,12 @@
 // with access to the definition of the entity database including the
 // definition of components.
 
-#pragma once
+// #pragma once
 
 // Part 1: Basic edb definition with component access/filters/etc.
 
 #include <Usagi/Entity/EntityDatabase.hpp>
+#include <Usagi/Runtime/Memory/PagedStorage.hpp>
 #include <Usagi/Modules/Gameplay/Scripting/ComponentCoroutineContinuation.hpp>
 #include <Usagi/Modules/Runtime/Asset/ComponentSecondaryAssetRef.hpp>
 #include <Usagi/Modules/Runtime/Executive/DatabaseTraits.hpp>

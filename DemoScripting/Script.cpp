@@ -1,4 +1,4 @@
-﻿#include "Database.hpp"
+﻿// #include "Database.hpp"
 
 using namespace usagi;
 
@@ -18,7 +18,7 @@ enum ResumeCondition : std::uint8_t
 };
 
 std::pair<std::uint64_t, ResumeCondition>
-script_main(std::uint64_t entry, auto &&db) {
+script(std::uint64_t entry, auto &&db) {
     switch(entry)
     {
         case 0:
@@ -47,3 +47,9 @@ script_main(std::uint64_t entry, auto &&db) {
         default: return { -1, NEVER };
     }
 }
+//
+// std::pair<std::uint64_t, ResumeCondition>
+// script_main(std::uint64_t entry /* insert db type */)
+// {
+//     return script(entry, db);
+// }

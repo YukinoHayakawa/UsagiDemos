@@ -50,7 +50,6 @@
       <SubSystem>Console</SubSystem>
     </Link>
     <CustomBuildStep>
-      <Command>cd $(Platform)\$(Configuration)\ &amp;&amp; move Database.obj ..\..\Database.pch &amp;&amp; copy Empty.obj Database.obj</Command>
       <Outputs>Database.pch</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>
@@ -67,14 +66,13 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <CustomBuildStep>
-      <Command>cd $(Platform)\$(Configuration)\ &amp;&amp; move Database.obj ..\..\Database.pch &amp;&amp; copy Empty.obj Database.obj</Command>
       <Outputs>Database.pch</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="main2.cpp" />
     <ClCompile Include="Empty.cpp" />
-    <ClCompile Include="Script.cpp" />
+    <ClCompile Include="main2.cpp" />
+    <ClCompile Include="Script - Copy.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Library\Usagi\Usagi.vcxproj">
@@ -94,10 +92,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Database.hpp">
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">-Xclang -cc1 -Xclang -emit-pch %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">-Xclang -cc1 -Xclang -emit-pch %(AdditionalOptions)</AdditionalOptions>
-    </ClCompile>
+    <ClInclude Include="Database.hpp">
+      <PreprocessToFile>true</PreprocessToFile>
+      <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</TreatWarningAsError>
+    </ClInclude>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

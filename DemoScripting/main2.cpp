@@ -110,10 +110,18 @@ int main(int argc, char *argv[])
 
     App app { data_folder };
     auto &svc = app.services();
+    auto &db = app.database_world();
 
     // allow SystemInvokeScriptCoroutine to find the script from current folder
     auto &assets = USAGI_SERVICE(svc, ServiceAssetManager);
     assets.add_package(std::make_unique<AssetPackageFilesystem>("."));
+
+    Archetype<ComponentSecondaryAssetRef, ComponentCoroutineContinuation>
+        script_archetype;
+    script_archetype.component<ComponentCoroutineContinuation>().resume_condition =
+        ComponentCoroutineContinuation::NEXT_FRAME;
+
+    db.insert(script_archetype);
 
     auto &tg = USAGI_SERVICE(app.services(), ServiceStateTransitionGraph);
     while(!tg.should_exit)
