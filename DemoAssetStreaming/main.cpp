@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
             do
             {
                 // asset = asset_manager.primary_asset(argv[1], &executor);
-                asset_sec = asset_manager.secondary_asset(asset_sec.signature);
+                asset_sec = asset_manager.secondary_asset(asset_sec.fingerprint_build);
                 std::cout << (std::uint64_t)asset_sec.status << " ";
                 // switch(asset.status)
                 // {
@@ -114,10 +114,10 @@ int main(int argc, char *argv[])
                 //     default:
                 //         throw 0;
                 // }
-            } while(asset_sec.status != AssetStatus::SECONDARY_READY);
+            } while(asset_sec.status != AssetStatus::READY);
 
             auto mdl = asset_sec.asset->as<SahProgramModule::SecondaryAssetT>();
-            auto ret = mdl->get_function_address<int()>("bar")();
+            auto ret = mdl->get_function_address<int(*)()>("bar")();
 
             std::cout << ret << std::endl;
         });
