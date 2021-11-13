@@ -48,9 +48,11 @@
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
+      <ModuleDefinitionFile>$(SolutionDir)Library\Usagi\Export.def</ModuleDefinitionFile>
     </Link>
     <CustomBuildStep>
-      <Outputs>Database.pch</Outputs>
+      <Outputs>interface.pch</Outputs>
+      <Command>echo Start-Process -NoNewWindow "$(ClCompilerPath)" -ArgumentList "-cc1 -disable-free -disable-llvm-verifier  -x c++-header -std=c++20 -fexceptions -fcxx-exceptions  -triple x86_64-pc-windows-msvc19.29.30136 -fms-compatibility -fms-compatibility-version=19.29.30136 -fms-extensions -fms-volatile -fdelayed-template-parsing -fexternc-nounwind -D_UNICODE -DUNICODE -D_HAS_CXX17 -D_HAS_CXX20 -D_MT -D_DLL -gcodeview -fdefault-calling-conv=cdecl -D_DEBUG --dependent-lib=msvcrtd --dependent-lib=oldnames -target-cpu haswell -mllvm -x86-asm-syntax=intel -fmath-errno -fno-rounding-math -fdeprecated-macro -fno-implicit-modules -stack-protector 2 -mconstructor-aliases -munwind-tables -fno-use-cxa-atexit -O0 -Wall -Werror -Wno-pragma-pack -fcolor-diagnostics -debug-info-kind=limited -resource-dir $(LLVM_DIR)\\lib\\clang\\$(LLVMToolsVersion) -fdebug-compilation-dir $(IntermediateOutputPath) -emit-pch -building-pch-with-obj -fpch-instantiate-templates -pch-through-hdrstop-create -ferror-limit 19 -o - //net/db_interface -remap-file //net/db_interface;$(IntermediateOutputPath)interface.i" -RedirectStandardOutput "$(IntermediateOutputPath)interface.pch" &gt; $(IntermediateOutputPath)CompilePCH.ps1 &amp;&amp; powershell $(IntermediateOutputPath)CompilePCH.ps1</Command>
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -64,20 +66,18 @@
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <ModuleDefinitionFile>$(SolutionDir)Library\Usagi\Export.def</ModuleDefinitionFile>
     </Link>
     <CustomBuildStep>
-      <Outputs>Database.pch</Outputs>
+      <Outputs>interface.pch</Outputs>
+      <Command>echo Start-Process -NoNewWindow "$(ClCompilerPath)" -ArgumentList "-cc1 -disable-free -disable-llvm-verifier  -x c++-header -std=c++20 -fexceptions -fcxx-exceptions  -triple x86_64-pc-windows-msvc19.29.30136 -fms-compatibility -fms-compatibility-version=19.29.30136 -fms-extensions -fms-volatile -fdelayed-template-parsing -fexternc-nounwind -D_UNICODE -DUNICODE -D_HAS_CXX17 -D_HAS_CXX20 -D_MT -D_DLL -gcodeview -fdefault-calling-conv=cdecl -D_DEBUG --dependent-lib=msvcrtd --dependent-lib=oldnames -target-cpu haswell -mllvm -x86-asm-syntax=intel -fmath-errno -fno-rounding-math -fdeprecated-macro -fno-implicit-modules -stack-protector 2 -mconstructor-aliases -munwind-tables -fno-use-cxa-atexit -O0 -Wall -Werror -Wno-pragma-pack -fcolor-diagnostics -debug-info-kind=limited -resource-dir $(LLVM_DIR)\\lib\\clang\\$(LLVMToolsVersion) -fdebug-compilation-dir $(IntermediateOutputPath) -emit-pch -building-pch-with-obj -fpch-instantiate-templates -pch-through-hdrstop-create -ferror-limit 19 -o - //net/db_interface -remap-file //net/db_interface;$(IntermediateOutputPath)interface.i" -RedirectStandardOutput "$(IntermediateOutputPath)interface.pch" &gt; $(IntermediateOutputPath)CompilePCH.ps1 &amp;&amp; powershell $(IntermediateOutputPath)CompilePCH.ps1</Command>
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Empty.cpp" />
+    <ClCompile Include="interface.cpp" />
     <ClCompile Include="main2.cpp" />
-    <ClCompile Include="Script - Copy.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Library\Usagi\Usagi.vcxproj">
-      <Project>{f9061c06-bce6-416b-9aeb-31351810b7ba}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\..\Modules\Usagi\Modules\Common\Logging\Logging.vcxproj">
       <Project>{e13613a3-b719-4bc5-991a-507402d14c25}</Project>
     </ProjectReference>
@@ -87,15 +87,15 @@
     <ProjectReference Include="..\..\Modules\Usagi\Modules\Platforms\Win10\Win10.vcxproj">
       <Project>{ba6b6731-dfa8-4da0-b121-d3d8d584b001}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\Modules\Usagi\Modules\Platforms\WinCommon\WinCommon.vcxproj">
-      <Project>{cd325def-b361-4cc5-87ac-bf51588dbf2d}</Project>
+    <ProjectReference Include="..\..\Modules\Usagi\Modules\Runtime\Executive\Executive.vcxproj">
+      <Project>{345cdbb7-1ec3-4e1c-ad4f-856a774430f5}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Database.hpp">
-      <PreprocessToFile>true</PreprocessToFile>
-      <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</TreatWarningAsError>
-    </ClInclude>
+    <ClCompile Include="interface.hpp">
+      <PreprocessToFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</PreprocessToFile>
+      <PreprocessToFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</PreprocessToFile>
+    </ClCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

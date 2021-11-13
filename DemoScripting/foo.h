@@ -1,6 +1,8 @@
+int nowhere();
+
 int foo()
 {
-    return 12345;
+    return nowhere();
 }
 
 // clang -cc1 foo.h -emit-pch -o foo.pch
