@@ -68,5 +68,8 @@
     <ClInclude Include="Type.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="System_star_render.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

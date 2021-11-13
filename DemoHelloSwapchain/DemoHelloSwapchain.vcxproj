@@ -65,9 +65,6 @@
     <ClInclude Include="SystemClearSwapchainImage.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Library\Usagi\Usagi.vcxproj">
-      <Project>{f9061c06-bce6-416b-9aeb-31351810b7ba}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\..\Modules\Usagi\Modules\Common\Logging\Logging.vcxproj">
       <Project>{e13613a3-b719-4bc5-991a-507402d14c25}</Project>
     </ProjectReference>

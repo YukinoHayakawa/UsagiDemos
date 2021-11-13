@@ -68,9 +68,6 @@
     <ProjectReference Include="..\..\Modules\Usagi\Modules\Platforms\Win10\Win10.vcxproj">
       <Project>{ba6b6731-dfa8-4da0-b121-d3d8d584b001}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\Modules\Usagi\Modules\Platforms\WinCommon\WinCommon.vcxproj">
-      <Project>{cd325def-b361-4cc5-87ac-bf51588dbf2d}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\..\Modules\Usagi\Modules\IO\Input\Input.vcxproj">
       <Project>{c87b711a-0036-4d0e-aa0b-501677f198fd}</Project>
     </ProjectReference>

@@ -58,9 +58,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Library\Usagi\Usagi.vcxproj">
-      <Project>{f9061c06-bce6-416b-9aeb-31351810b7ba}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\..\Modules\Usagi\Modules\Assets\SahProgramModule\SahProgramModule.vcxproj">
       <Project>{10c7f91a-9061-4691-a5de-c115bcc5cf50}</Project>
     </ProjectReference>
