@@ -58,9 +58,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Modules\Usagi\Modules\Assets\SahProgramModule\SahProgramModule.vcxproj">
-      <Project>{10c7f91a-9061-4691-a5de-c115bcc5cf50}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\..\Modules\Usagi\Modules\Common\Logging\Logging.vcxproj">
       <Project>{e13613a3-b719-4bc5-991a-507402d14c25}</Project>
     </ProjectReference>
@@ -70,9 +67,17 @@
     <ProjectReference Include="..\..\Modules\Usagi\Modules\Runtime\Asset\Asset.vcxproj">
       <Project>{8722e8a6-ddc8-4283-8dff-45cd15e7dc6f}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\..\Modules\Usagi\Modules\Runtime\Executive\Executive.vcxproj">
+      <Project>{345cdbb7-1ec3-4e1c-ad4f-856a774430f5}</Project>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="1.txt" />
+    <Text Include="2.txt" />
+    <Text Include="3.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

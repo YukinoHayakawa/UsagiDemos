@@ -1,128 +1,76 @@
-﻿
-#include <cassert>
-#include <future>
-#include <iostream>
+﻿#include <iostream>
 
-#include <Usagi/Library/Memory/LockGuard.hpp>
-#include <Usagi/Modules/Assets/SahProgramModule/SahProgramModule.hpp>
-#include <Usagi/Modules/Common/Time/Clock.hpp>
 #include <Usagi/Modules/Runtime/Asset/AssetManager.hpp>
 #include <Usagi/Modules/Runtime/Asset/SecondaryAsset.hpp>
 #include <Usagi/Modules/Runtime/Asset/SecondaryAssetHandler.hpp>
 #include <Usagi/Modules/Runtime/Asset/Package/AssetPackageFilesystem.hpp>
-#include <Usagi/Modules/Runtime/ProgramModule/ClangJIT.hpp>
-#include <Usagi/Modules/Runtime/ProgramModule/RuntimeModule.hpp>
-#include <Usagi/Runtime/Task.hpp>
+#include <Usagi/Modules/Runtime/Executive/ServiceAsyncWorker.hpp>
 
 using namespace usagi;
 
-class StdTaskExecutor : public TaskExecutor
+class Text : public SecondaryAsset
 {
-    std::map<std::uint64_t, std::future<void>> mTask;
-    using TaskRef = decltype(mTask)::iterator;
-    std::mutex mMutex;
-    std::uint64_t mTaskId = 0;
-
 public:
-    std::uint64_t submit(
-        std::unique_ptr<Task> task,
-        std::optional<std::vector<std::uint64_t>> wait_on) override
+    std::string string;
+};
+
+class Sah1 : public SecondaryAssetHandler<Text>
+{
+protected:
+    std::unique_ptr<SecondaryAsset> construct() override
     {
-        std::lock_guard lk(mMutex);
+        auto dep1 = primary_asset_async("1.txt");
+        auto dep2 = primary_asset_async("2.txt");
+        auto val1 = dep1.get();
+        auto val2 = dep2.get();
 
-        auto task_id = ++mTaskId;
+        auto txt = std::make_unique<Text>();
 
-        auto future = std::async(
-            std::launch::async,
-            [t = std::move(task), wait = std::move(wait_on), this]() {
-                Clock clk;
-                // using namespace std::chrono_literals;
-                // std::this_thread::sleep_for(5ms);
+        txt->string = val1.region.to_string_view();
+        txt->string += val2.region.to_string_view();
 
-                if(wait.has_value())
-                {
-                    for(auto &&w : *wait)
-                    {
-                        LockGuard lk(mMutex);
-                        auto wt = mTask.find(w);
-                        assert(wt != mTask.end());
-                        lk.unlock();
-                        wt->second.wait();
-                    }
-                }
+        return std::move(txt);
+    }
 
-                if(!t->precondition()) throw std::runtime_error("");
-                t->on_started();
-                t->run();
-                t->on_finished();
-                if(!t->postcondition()) throw std::runtime_error("");
+    void append_features(Hasher &hasher) override
+    {
+        hasher.append("test");
+    }
+};
 
-                std::cout << clk.realtime_elapsed() << std::endl;
-            }
-        );
+class Sah2 : public SecondaryAssetHandler<Text>
+{
+protected:
+    std::unique_ptr<SecondaryAsset> construct() override
+    {
+        auto dep1 = secondary_asset_async(std::make_unique<Sah1>());
+        auto dep2 = primary_asset_async("3.txt");
 
-        mTask.emplace(task_id, std::move(future));
+        auto val1 = dep1.get();
+        auto val2 = dep2.get();
 
-        return task_id;
+        auto txt = std::make_unique<Text>();
+
+        txt->string = val1.asset->as<Text>()->string;
+        txt->string += val2.region.to_string_view();
+
+        return std::move(txt);
     }
 };
 
 int main(int argc, char *argv[])
 {
-    ClangJIT jit;
-    StdTaskExecutor executor;
     AssetManager asset_manager;
-    asset_manager.add_package(std::make_shared<AssetPackageFilesystem>("."));
-    const auto nt = 32;
-    std::vector<std::thread> ts;
-    ts.reserve(nt);
+    asset_manager.add_package(std::make_unique<AssetPackageFilesystem>("."));
+    ServiceAsyncWorker wq;
 
-    for(int i = 0; i < nt; ++i)
+    SecondaryAssetMeta meta = asset_manager.secondary_asset(
+        std::make_unique<Sah2>(),
+        wq.get_service()
+    );
+    while(meta.status != AssetStatus::READY)
     {
-        ts.emplace_back([&]() {
-            // PrimaryAsset asset;
-
-            auto handler = std::make_unique<SahProgramModule>(
-                jit,
-                "foo2.pch",
-                "test.cpp"
-            );
-
-            SecondaryAssetMeta asset_sec = asset_manager.secondary_asset(
-                std::move(handler),
-                executor
-            );
-            do
-            {
-                // asset = asset_manager.primary_asset(argv[1], &executor);
-                asset_sec = asset_manager.secondary_asset(asset_sec.fingerprint_build);
-                std::cout << (std::uint64_t)asset_sec.status << " ";
-                // switch(asset.status)
-                // {
-                //     case AssetStatus::PRIMARY_FOUND:
-                //         std::cout << "Found" << std::endl;
-                //         break;
-                //     case AssetStatus::PRIMARY_PENDING:
-                //         std::cout << "Pending" << std::endl;
-                //         break;
-                //     case AssetStatus::PRIMARY_LOADING:
-                //         std::cout << "Loading" << std::endl;
-                //         break;
-                //     case AssetStatus::PRIMARY_READY:
-                //         std::cout << "Ready" << std::endl;
-                //         break;
-                //     default:
-                //         throw 0;
-                // }
-            } while(asset_sec.status != AssetStatus::READY);
-
-            auto mdl = asset_sec.asset->as<SahProgramModule::SecondaryAssetT>();
-            auto ret = mdl->get_function_address<int(*)()>("bar")();
-
-            std::cout << ret << std::endl;
-        });
+        meta = asset_manager.secondary_asset(meta.fingerprint_build);
     }
-
-    for(auto &&t : ts)
-        t.join();
+    std::cout << meta.asset->as<Text>()->string << std::endl;
 }
