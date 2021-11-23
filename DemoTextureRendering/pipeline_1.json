@@ -1,0 +1,14 @@
+{
+    "inherit": "default_pipeline.json",
+    "shaders": {
+        "vertex": {
+            "source": "shader.vert"
+        },
+        "fragment": {
+            "source": "shader.frag"
+        }
+    },
+    "input_assembly": {
+        "primitive_topology": "triangle_list"
+    }
+}
