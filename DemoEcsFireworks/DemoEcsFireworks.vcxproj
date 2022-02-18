@@ -81,20 +81,14 @@
     <ClInclude Include="Type.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Modules\Usagi\Modules\Common\Logging\Logging.vcxproj">
-      <Project>{e13613a3-b719-4bc5-991a-507402d14c25}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Modules\Usagi\Modules\Runtime\Executive\Executive.vcxproj">
-      <Project>{345cdbb7-1ec3-4e1c-ad4f-856a774430f5}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\..\Modules\Usagi\Modules\Common\Math\Math.vcxproj">
       <Project>{d4e79012-d153-40c0-b62d-fc9b31495442}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\Modules\Usagi\Modules\Common\Time\Time.vcxproj">
       <Project>{61c2c8d3-d6d1-4bea-b122-43142579ba35}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\Modules\Usagi\Modules\Platforms\Win10\Win10.vcxproj">
-      <Project>{ba6b6731-dfa8-4da0-b121-d3d8d584b001}</Project>
+    <ProjectReference Include="..\..\Targets\DefaultWin32\DefaultWin32.vcxproj">
+      <Project>{1a68ce6a-424d-45cb-b459-4d4783563304}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

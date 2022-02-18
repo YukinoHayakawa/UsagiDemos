@@ -62,17 +62,14 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Modules\Usagi\Modules\Common\Logging\Logging.vcxproj">
-      <Project>{e13613a3-b719-4bc5-991a-507402d14c25}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Modules\Usagi\Modules\Platforms\Win10\Win10.vcxproj">
-      <Project>{ba6b6731-dfa8-4da0-b121-d3d8d584b001}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\..\Modules\Usagi\Modules\IO\Input\Input.vcxproj">
       <Project>{c87b711a-0036-4d0e-aa0b-501677f198fd}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\Modules\Usagi\Modules\IO\Windowing\Windowing.vcxproj">
       <Project>{bdf27242-7a3c-4dd2-b7c8-62962c96ca08}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Targets\DefaultPlatform\DefaultPlatform.vcxproj">
+      <Project>{e989bbfc-a4cd-4f94-b15b-ec7b05f80e3f}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

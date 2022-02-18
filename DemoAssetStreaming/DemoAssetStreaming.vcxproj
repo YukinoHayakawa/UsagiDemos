@@ -58,17 +58,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Modules\Usagi\Modules\Common\Logging\Logging.vcxproj">
-      <Project>{e13613a3-b719-4bc5-991a-507402d14c25}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Modules\Usagi\Modules\Platforms\Win10\Win10.vcxproj">
-      <Project>{ba6b6731-dfa8-4da0-b121-d3d8d584b001}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\..\Modules\Usagi\Modules\Runtime\Asset\Asset.vcxproj">
       <Project>{8722e8a6-ddc8-4283-8dff-45cd15e7dc6f}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\Modules\Usagi\Modules\Runtime\Executive\Executive.vcxproj">
-      <Project>{345cdbb7-1ec3-4e1c-ad4f-856a774430f5}</Project>
+    <ProjectReference Include="..\..\Targets\DefaultPlatform\DefaultPlatform.vcxproj">
+      <Project>{e989bbfc-a4cd-4f94-b15b-ec7b05f80e3f}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

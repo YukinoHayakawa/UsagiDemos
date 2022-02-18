@@ -64,8 +64,8 @@
     <ProjectReference Include="..\..\Modules\Usagi\Modules\Assets\SahJson\SahJson.vcxproj">
       <Project>{07588673-2a24-4618-8eb5-025422004b68}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\Modules\Usagi\Modules\Platforms\Win10\Win10.vcxproj">
-      <Project>{ba6b6731-dfa8-4da0-b121-d3d8d584b001}</Project>
+    <ProjectReference Include="..\..\Targets\DefaultPlatform\DefaultPlatform.vcxproj">
+      <Project>{e989bbfc-a4cd-4f94-b15b-ec7b05f80e3f}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
