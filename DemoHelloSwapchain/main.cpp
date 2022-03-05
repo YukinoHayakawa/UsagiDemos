@@ -20,10 +20,13 @@
 #include <Usagi/Modules/IO/Input/SystemInputEventPump.hpp>
 #include <Usagi/Modules/IO/Windowing/ComponentNativeWindow.hpp>
 #include <Usagi/Modules/IO/Windowing/ServiceNativeWindowManager.hpp>
-#include <Usagi/Modules/IO/Windowing/SystemNativeWindowCoordinator.hpp>
+#include <Usagi/Modules/IO/Windowing/SystemNativeWindowStateSynchronizer.hpp>
 
 #include <Usagi/Modules/Platforms/WinCommon/Input/InputEventSourceWin32RawInput.hpp>
 #include <Usagi/Modules/Platforms/WinCommon/Windowing/NativeWindowManagerWin32.hpp>
+#include <Usagi/Modules/Resources/ResWindowManager/HeapWindowManager.hpp>
+#include <Usagi/Modules/Runtime/Executive/ServiceAsyncWorker.hpp>
+#include <Usagi/Modules/Runtime/HeapManager/HeapManagerStatic.hpp>
 
 #include "ServiceColorChoice.hpp"
 #include "SystemClearSwapchainImage.hpp"
@@ -36,11 +39,20 @@ struct Services
     , ServiceStateTransitionGraph
     , ServiceHardwareGraphics
     , ServiceColorChoice
+    , HeapManagerStatic<
+        HeapWindowManager,
+        HeapVulkanObjectManager
+    >
+    , ServiceAsyncWorker
 {
     Services()
         : ServiceInputSource(Tag<InputEventSourceWin32RawInput>())
         // todo: use templatized type to help devirtualization (but how to change service provider during runtime?)
         , ServiceNativeWindowManager(Tag<NativeWindowManagerWin32>())
+        , HeapManagerStatic(
+            std::forward_as_tuple(), // Window Manager
+            std::forward_as_tuple(&ServiceHardwareGraphics::get_service()) // Vulkan
+        )
     {
     }
 };
@@ -51,7 +63,7 @@ Archetype<
 > gArchetypeWindow;
 
 using TaskList = SystemTaskList<
-    SystemNativeWindowCoordinator,
+    // SystemNativeWindowStateSynchronizer,
     SystemClearSwapchainImage
 >;
 TaskList gTaskList;
@@ -63,10 +75,12 @@ int main(int argc, char *argv[])
     std::filesystem::remove_all("demo_window_swapchain");
 
     App app { "demo_window_swapchain" };
+    [[maybe_unused]]
     auto &db = app.database_world();
     InputEventQueue input_event_queue;
     SystemInputEventPump pump;
 
+    /*
     if(std::ranges::distance(db.create_access<ComponentAccessReadOnly>()
         .view<ComponentNativeWindow>()) == 0)
     {
@@ -78,13 +92,21 @@ int main(int argc, char *argv[])
         c_region.position = { 100, 100 };
         db.insert(gArchetypeWindow);
     }
+    */
 
     // auto &wnd_mgr = USAGI_SERVICE(gServices, ServiceNativeWindowManager);
-
+    [[maybe_unused]]
+    auto &rt = app.services();
     auto &tg = USAGI_SERVICE(app.services(), ServiceStateTransitionGraph);
+    [[maybe_unused]]
     auto &gfx = USAGI_SERVICE(app.services(), ServiceHardwareGraphics);
     auto &color = USAGI_SERVICE(app.services(), ServiceColorChoice);
-    gfx.set_thread_resource_pool_size(1);
+    // gfx.set_thread_resource_pool_size(1);
+    [[maybe_unused]]
+    auto &heap_mgr = app.services().heap_manager();
+    // using GpuDevice = std::remove_reference_t<decltype(*&gfx)>;
+    [[maybe_unused]]
+    auto &worker = USAGI_SERVICE(rt, ServiceAsyncWorker);
 
     while(!tg.should_exit)
     {
