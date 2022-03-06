@@ -1,31 +1,31 @@
 ﻿#pragma once
 
+#include <Usagi/Entity/EntityDatabase.hpp>
 #include <Usagi/Modules/Common/Color/Color.hpp>
-#include <Usagi/Runtime/Service/Service.hpp>
-#include <Usagi/Runtime/Service/LazyInitService.hpp>
-
-#include <Usagi/Modules/Platforms/Vulkan/VulkanGpuDevice.hpp>
+#include <Usagi/Runtime/Service/ServiceAccess.hpp>
 #include <Usagi/Modules/IO/Graphics/Enum.hpp>
-#include <Usagi/Modules/Resources/ResVulkanWSI/RbVulkanSwapchain.hpp>
+#include <Usagi/Modules/Runtime/Executive/ServiceAsyncWorker.hpp>
 
 #include "ServiceColorChoice.hpp"
 
 namespace usagi
 {
-USAGI_DECL_ALIAS_SERVICE(
-    ServiceHardwareGraphics,
-    LazyInitService<VulkanGpuDevice>
-);
-
 struct SystemClearSwapchainImage
 {
     using WriteAccess = C<>;
     using ReadAccess = C<>;
 
-    void update(auto &&rt, auto &&db);
+    using ServiceAccessT = ServiceAccess<
+        ServiceHardwareGraphics,
+        ServiceColorChoice,
+        ServiceAsyncWorker,
+        AppServiceHeapManager
+    >;
+
+    void update(ServiceAccessT rt, auto &&db);
 };
 
-void SystemClearSwapchainImage::update(auto &&rt, auto &&db)
+void SystemClearSwapchainImage::update(ServiceAccessT rt, auto &&db)
 {
     // The color used to fill the swapchain image
     static const Color4f Colors[] {
@@ -37,11 +37,10 @@ void SystemClearSwapchainImage::update(auto &&rt, auto &&db)
     // todo: need a way to allow different impl while providing an unified service name
     // This service provides access to GPU resources with automatic lifetime
     // management.
-    auto &gfx = USAGI_SERVICE(rt, ServiceHardwareGraphics);
+    auto &gfx = rt.graphics();
     // This services synchronizes window entities with the operating system.
-    // auto &wnd_mgr = USAGI_SERVICE(rt, ServiceNativeWindowManager);
-    auto &color = USAGI_SERVICE(rt, ServiceColorChoice);
-    auto &worker = USAGI_SERVICE(rt, ServiceAsyncWorker);
+    const auto &color = rt.color_choice();
+    auto &worker = rt.executor();
     auto &heap_mgr = rt.heap_manager();
 
     // todo this is ugly
@@ -53,7 +52,10 @@ void SystemClearSwapchainImage::update(auto &&rt, auto &&db)
     // todo: how to know when the window is destroyed so the resource can be released.
     // todo: how to specify the swapchain spec
     // todo this is hell difficult to debug with when it doesn't compile
-    auto swapchain_accessor = heap_mgr.template resource<typename GpuDevice::RbSwapchain>(
+    // todo: no type info for returned resource
+    // auto swapchain_accessor = heap_mgr.resource<GpuDevice::RbSwapchain>(
+    ResourceAccessor<GpuDevice::RbSwapchain> swapchain_accessor = 
+        heap_mgr.resource<GpuDevice::RbSwapchain>(
         { },
         &worker,
         [] {
@@ -66,10 +68,13 @@ void SystemClearSwapchainImage::update(auto &&rt, auto &&db)
                 NativeWindowState::NORMAL
             );
         }
-    ).make_request();
+    ).make_request(); // return type of make_request can be deduced if templated param db is removed
     if(!swapchain_accessor.ready()) return;
 
+    // todo help auto completion infer return type
     auto swapchain = swapchain_accessor.get();
+    // swapchain->
+    // RefCounted<VulkanSwapchain> swapchain = swapchain_accessor.get();
 
     // prepare synchronization primitives
     auto sem_image_avail = gfx.allocate_semaphore();
@@ -78,7 +83,7 @@ void SystemClearSwapchainImage::update(auto &&rt, auto &&db)
 
     const auto image_info = swapchain->acquire_next_image(
         sem_image_avail.get());
-
+    
     // The graphics service internally manages a command list allocator
     // for each thread.
     // todo: how to know when the thread is destroyed so we can release the resource (perhaps needs some common mechanism as the window)

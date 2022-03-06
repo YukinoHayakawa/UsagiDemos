@@ -61,6 +61,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AppConfig.hpp" />
     <ClInclude Include="ServiceColorChoice.hpp" />
     <ClInclude Include="SystemClearSwapchainImage.hpp" />
   </ItemGroup>

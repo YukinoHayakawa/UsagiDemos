@@ -26,5 +26,8 @@
     <ClInclude Include="ServiceColorChoice.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="AppConfig.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
